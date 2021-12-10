@@ -30,7 +30,7 @@ function Demo() {
   );
 }
 
-export const clearable: MantineDemo = {
+export const controlable: MantineDemo = {
   type: 'demo',
   code,
   component: Demo,

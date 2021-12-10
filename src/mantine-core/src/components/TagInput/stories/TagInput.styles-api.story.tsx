@@ -13,7 +13,6 @@ function Wrapper(props: Partial<TagInputProps>) {
     <InputStylesApiWrapper
       component={TagInput}
       value={['React', 'Angular']}
-      data={['React', 'Angular', 'Vue', 'Svelte']}
       rightSection={null}
       {...props}
     />

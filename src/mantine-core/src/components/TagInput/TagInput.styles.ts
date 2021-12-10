@@ -34,7 +34,7 @@ export default createStyles((theme, { size, invalid }: TagInputStyles) => ({
     margin: `${theme.spacing.xs / 2 - 2}px ${theme.spacing.xs / 2}px`,
   },
 
-  searchInput: {
+  tagInput: {
     width: 60,
     backgroundColor: 'transparent',
     border: 0,
@@ -58,18 +58,18 @@ export default createStyles((theme, { size, invalid }: TagInputStyles) => ({
     },
   },
 
-  searchInputEmpty: {
+  tagInputEmpty: {
     width: '100%',
   },
 
-  searchInputInputHidden: {
+  tagInputInputHidden: {
     width: 0,
     height: 0,
     margin: 0,
     overflow: 'hidden',
   },
 
-  searchInputPointer: {
+  tagInputPointer: {
     cursor: 'pointer',
 
     '&:disabled': {

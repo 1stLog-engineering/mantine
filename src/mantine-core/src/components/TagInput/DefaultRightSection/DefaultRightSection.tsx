@@ -22,8 +22,9 @@ export function DefaultRightSection({
       onClick={onClear}
       size={size}
     />
-  ) :
-   <></>;
+  ) : (
+    <></>
+  );
 }
 
 DefaultRightSection.displayName = '@mantine/core/TagInput/DefaultRightSection';

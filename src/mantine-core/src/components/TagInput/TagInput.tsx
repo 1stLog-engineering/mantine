@@ -1,33 +1,23 @@
 import React, { useState, useRef, forwardRef } from 'react';
-import {
-  useUncontrolled,
-  useMergedRef,
-  useUuid,
-} from '@mantine/hooks';
-import {
-  DefaultProps,
-  MantineSize,
-  ClassNames,
-  useExtractedMargins,
-} from '@mantine/styles';
+import { useUncontrolled, useMergedRef, useUuid } from '@mantine/hooks';
+import { DefaultProps, MantineSize, ClassNames, useExtractedMargins } from '@mantine/styles';
 import { InputWrapper } from '../InputWrapper';
 import { Input } from '../Input';
-import {
-  BaseSelectProps,
-  BaseSelectStylesNames,
-} from '../Select/types';
+import { BaseSelectProps } from '../Select/types';
+import { InputStylesNames } from '../Input/Input';
+import { InputWrapperStylesNames } from '../InputWrapper/InputWrapper';
 import useStyles, { RIGHT_SECTION_WIDTH } from './TagInput.styles';
 import { DefaultValue, DefaultValueStylesNames } from './DefaultValue/DefaultValue';
 import { DefaultRightSection } from './DefaultRightSection/DefaultRightSection';
 
 export type TagInputStylesNames =
-| DefaultValueStylesNames
+  | DefaultValueStylesNames
   | Exclude<
       ClassNames<typeof useStyles>,
-      'searchInputEmpty' | 'searchInputInputHidden' | 'searchInputPointer'
+      'tagInputEmpty' | 'tagInputInputHidden' | 'tagInputPointer'
     >
-  | Exclude<BaseSelectStylesNames, 'selected'>;
-
+  | InputStylesNames
+  | InputWrapperStylesNames;
 export interface TagInputProps extends DefaultProps<TagInputStylesNames>, BaseSelectProps {
   /** Input size */
   size?: MantineSize;
@@ -66,27 +56,27 @@ export interface TagInputProps extends DefaultProps<TagInputStylesNames>, BaseSe
   maxTags?: number;
 
   /** Component used to render right section */
-  rightSection?: React.FC<any>
+  rightSection?: React.FC<any>;
 
   /** Called to split after onPaste  */
-  pasteSplit?: (data:any) => string[]
+  pasteSplit?: (data: any) => string[];
 
   /** Allow to paste item */
-  addOnPaste?:boolean
+  addOnPaste?: boolean;
 
   /** Called for validation when add tags */
-  validationRegex?: RegExp
+  validationRegex?: RegExp;
 
   /** Allow to only unique */
-  onlyUnique?: boolean
+  onlyUnique?: boolean;
 }
 
-const defaultPasteSplit = (data:string):string[] => {
+const defaultPasteSplit = (data: string): string[] => {
   const separators = [',', ';', '\\(', '\\)', '\\*', '/', ':', '\\?', '\n', '\r'];
-  return data.split(new RegExp(separators.join('|'))).map(d => d.trim());
+  return data.split(new RegExp(separators.join('|'))).map((d) => d.trim());
 };
 
-const getClipboardData = (e:ClipboardEvent):string => {
+const getClipboardData = (e: ClipboardEvent): string => {
   if (e.clipboardData) {
     return e.clipboardData.getData('text/plain');
   }
@@ -195,11 +185,9 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       let tags = newTags;
       if (onlyUnique) {
         tags = uniq(tags);
-        tags = tags.filter(tag => _value.every(currentTag =>
-        currentTag !== tag)
-        );
+        tags = tags.filter((tag) => _value.every((currentTag) => currentTag !== tag));
       }
-      const rejectedTags = tags.filter(tag => validationRegex.test(tag));
+      const rejectedTags = tags.filter((tag) => validationRegex.test(tag));
 
       if (maxTags >= 0) {
         const remainingLimit = Math.max(maxTags - _value.length, 0);
@@ -225,16 +213,16 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       switch (event.nativeEvent.code) {
         case 'Enter': {
           if (inputValue) {
-          event.preventDefault();
+            event.preventDefault();
 
-          handleAddTags([inputValue]);
-          if (_value.length === maxTags - 1) {
-            valuesOverflow.current = true;
-            inputRef.current?.blur();
-            return;
+            handleAddTags([inputValue]);
+            if (_value.length === maxTags - 1) {
+              valuesOverflow.current = true;
+              inputRef.current?.blur();
+              return;
+            }
+            inputRef.current?.focus();
           }
-          inputRef.current?.focus();
-        }
 
           break;
         }
@@ -252,8 +240,8 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
     const selectedItems = _value
       .map((val) => {
         const selectedItem = {
-            value: val,
-            label: val,
+          value: val,
+          label: val,
         };
         return selectedItem;
       })
@@ -337,14 +325,15 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
               ...classNames,
             }}
             rightSectionWidth={theme.fn.size({ size, sizes: RIGHT_SECTION_WIDTH }) as number}
-            rightSection={<RightSection
-              shouldClear={!disabled && clearable && _value.length > 0}
-              clearButtonLabel={clearButtonLabel}
-              onClear={handleClear}
-              size={size}
-            />}
+            rightSection={
+              <RightSection
+                shouldClear={!disabled && clearable && _value.length > 0}
+                clearButtonLabel={clearButtonLabel}
+                onClear={handleClear}
+                size={size}
+              />
+            }
             onPaste={handlePaste}
-
           >
             <div className={classes.values}>
               {selectedItems}
@@ -353,8 +342,8 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
                 ref={useMergedRef(ref, inputRef)}
                 type="text"
                 id={uuid}
-                className={cx(classes.searchInput, {
-                  [classes.searchInputEmpty]: _value.length === 0,
+                className={cx(classes.tagInput, {
+                  [classes.tagInputEmpty]: _value.length === 0,
                 })}
                 onKeyDown={handleInputKeydown}
                 value={inputValue}
@@ -369,7 +358,6 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
               />
             </div>
           </Input>
-
         </div>
 
         {name && <input type="hidden" name={name} value={_value.join(',')} />}

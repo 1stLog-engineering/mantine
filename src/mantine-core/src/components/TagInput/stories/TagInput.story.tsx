@@ -14,7 +14,7 @@ function Controlled() {
         label="Tag Input"
         value={value}
         onChange={setValue}
-        placeholder="Select items"
+        placeholder="Input tag"
 
       />
       <button type="button" onClick={() => setValue(['react', 'ng'])}>
@@ -31,7 +31,7 @@ const sizes = MANTINE_SIZES.map((size) => (
       variant="unstyled"
       label="Tag Input"
       defaultValue={['react', 'ng']}
-      placeholder="Select items"
+      placeholder="Input Tag"
 
     />
     <TextInput label="Text input" placeholder="Text input" size={size} />
@@ -43,7 +43,7 @@ const variants = (['default', 'filled', 'unstyled'] as const).map((variant) => (
     <TagInput
       variant={variant}
       label="Tag Input"
-      placeholder="Select items"
+      placeholder="Input Tag"
     />
     <TextInput label="Text input" placeholder="Text input" variant={variant} />
   </Group>
@@ -56,35 +56,35 @@ storiesOf('@mantine/core/TagInput/stories', module)
         <TagInput
           label="Tag Input"
           defaultValue={['react', 'ng']}
-          placeholder="Select items"
+          placeholder="Input tag"
         />
-        <TextInput label="Text input" placeholder="Select items" />
+        <TextInput label="Text input" placeholder="Input tag" />
       </Group>
       <Group style={{ padding: 40, paddingTop: 0 }} grow align="flex-start" mt="md">
-        <TextInput label="Text input" placeholder="Select items" />
+        <TextInput label="Text input" placeholder="Input tag" />
         <TagInput
           label="Tag Input with separator and disabled items"
           defaultValue={['react', 'ng']}
-          placeholder="Select items"
+          placeholder="Input tag"
         />
       </Group>
     </>
   ))
   .add('Overflow value and items', () => (
     <div style={{ padding: 40, maxWidth: 400 }}>
-      <TagInput label="Tag Input" placeholder="Select items" />
+      <TagInput label="Tag Input" placeholder="Input tag" />
     </div>
   ))
   .add('z-index', () => (
     <div style={{ padding: 40, maxWidth: 400 }}>
-      <TagInput label="Tag Input" placeholder="Select items" />
+      <TagInput label="Tag Input" placeholder="Input tag" />
     </div>
   ))
   .add('Grouped and disabled data', () => (
     <div style={{ padding: 40, maxWidth: 400 }}>
       <TagInput
         label="Tag Input"
-        placeholder="Select items"
+        placeholder="Input tag"
 
       />
     </div>
@@ -97,7 +97,7 @@ storiesOf('@mantine/core/TagInput/stories', module)
       <TagInput
         label=" with Max Selectable Values"
         defaultValue={['react', 'ng']}
-        placeholder="Select items"
+        placeholder="Input tag"
         maxTags={5}
       />
     </Group>
@@ -107,7 +107,7 @@ storiesOf('@mantine/core/TagInput/stories', module)
       <TagInput
         label="Submit with enter"
         defaultValue={['react', 'ng']}
-        placeholder="Select items"
+        placeholder="Input tag"
 
       />
     </SubmitForm>
@@ -117,7 +117,7 @@ storiesOf('@mantine/core/TagInput/stories', module)
       <TagInput
         label="Tag Input"
         defaultValue={['react', 'ng']}
-        placeholder="Select items"
+        placeholder="Input tag"
 
       />
     </RtlProvider>
