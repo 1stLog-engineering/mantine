@@ -6,9 +6,14 @@ const code = `
   label="Your favorite frameworks/libraries"
   placeholder="Pick all that you like"
   defaultValue={['react', 'next']}
-  clearButtonLabel="Clear selection"
-  clearable
-/>`;
+  pasteSplit={PasteSplit}
+/>
+`;
+
+const PasteSplit = (data: string): string[] => {
+  const separators = [','];
+  return data.split(new RegExp(separators.join('|'))).map((d) => d.trim());
+};
 
 function Demo() {
   return (
@@ -17,14 +22,13 @@ function Demo() {
         label="Your favorite frameworks/libraries"
         placeholder="Pick all that you like"
         defaultValue={['react', 'next']}
-        clearButtonLabel="Clear selection"
-        clearable
+        pasteSplit={PasteSplit}
       />
     </div>
   );
 }
 
-export const clearable: MantineDemo = {
+export const pasteSplit: MantineDemo = {
   type: 'demo',
   code,
   component: Demo,

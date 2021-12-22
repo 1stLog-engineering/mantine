@@ -6,9 +6,9 @@ const code = `
   label="Your favorite frameworks/libraries"
   placeholder="Pick all that you like"
   defaultValue={['react', 'next']}
-  clearButtonLabel="Clear selection"
-  clearable
-/>`;
+  onlyUnique
+/>
+`;
 
 function Demo() {
   return (
@@ -17,14 +17,13 @@ function Demo() {
         label="Your favorite frameworks/libraries"
         placeholder="Pick all that you like"
         defaultValue={['react', 'next']}
-        clearButtonLabel="Clear selection"
-        clearable
+        onlyUnique
       />
     </div>
   );
 }
 
-export const clearable: MantineDemo = {
+export const onlyUnique: MantineDemo = {
   type: 'demo',
   code,
   component: Demo,

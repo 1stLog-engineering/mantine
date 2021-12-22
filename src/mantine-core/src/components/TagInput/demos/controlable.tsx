@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { TagInput } from '../TagInput';
 
 const code = `
-  <TagInput
-    label="Your favorite frameworks/libraries"
-    placeholder="Pick all that you like"
-    clearButtonLabel="Clear selection"
-    clearable
-    maxTags={3}
-    value={value}
-    onChange={(item) => setValue(item)}
-  />
+<TagInput
+  label="Your favorite frameworks/libraries"
+  placeholder="Pick all that you like"
+  clearButtonLabel="Clear selection"
+  clearable
+  value={value}
+  onChange={(item) => setValue(item)}
+/>
 `;
 
 function Demo() {
@@ -21,8 +20,6 @@ function Demo() {
         label="Your favorite frameworks/libraries"
         placeholder="Pick all that you like"
         clearButtonLabel="Clear selection"
-        clearable
-        maxTags={3}
         value={value}
         onChange={(item) => setValue(item)}
       />

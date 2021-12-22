@@ -5,10 +5,8 @@ const code = `
 <TagInput
   label="Your favorite frameworks/libraries"
   placeholder="Pick all that you like"
-  defaultValue={['react', 'next']}
-  clearButtonLabel="Clear selection"
-  clearable
-/>`;
+/>
+`;
 
 function Demo() {
   return (
@@ -16,15 +14,12 @@ function Demo() {
       <TagInput
         label="Your favorite frameworks/libraries"
         placeholder="Pick all that you like"
-        defaultValue={['react', 'next']}
-        clearButtonLabel="Clear selection"
-        clearable
       />
     </div>
   );
 }
 
-export const clearable: MantineDemo = {
+export const usage: MantineDemo = {
   type: 'demo',
   code,
   component: Demo,

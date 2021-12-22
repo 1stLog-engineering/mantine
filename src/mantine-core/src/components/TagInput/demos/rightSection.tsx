@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronDownIcon } from '@modulz/radix-icons';
 import { TagInput } from '../TagInput';
 
 const code = `
@@ -6,9 +7,10 @@ const code = `
   label="Your favorite frameworks/libraries"
   placeholder="Pick all that you like"
   defaultValue={['react', 'next']}
-  clearButtonLabel="Clear selection"
-  clearable
-/>`;
+  rightSection={() => <ChevronDownIcon />}
+  styles={{ rightSection: { pointerEvents: 'none' } }}
+/>
+`;
 
 function Demo() {
   return (
@@ -17,14 +19,14 @@ function Demo() {
         label="Your favorite frameworks/libraries"
         placeholder="Pick all that you like"
         defaultValue={['react', 'next']}
-        clearButtonLabel="Clear selection"
-        clearable
+        rightSection={() => <ChevronDownIcon />}
+        styles={{ rightSection: { pointerEvents: 'none' } }}
       />
     </div>
   );
 }
 
-export const clearable: MantineDemo = {
+export const rightSection: MantineDemo = {
   type: 'demo',
   code,
   component: Demo,

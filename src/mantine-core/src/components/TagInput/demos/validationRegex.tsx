@@ -6,9 +6,10 @@ const code = `
   label="Your favorite frameworks/libraries"
   placeholder="Pick all that you like"
   defaultValue={['react', 'next']}
-  clearButtonLabel="Clear selection"
-  clearable
-/>`;
+  validationRegex={/test.*/}
+  onValidationReject={() => {}}
+/>
+`;
 
 function Demo() {
   return (
@@ -16,15 +17,15 @@ function Demo() {
       <TagInput
         label="Your favorite frameworks/libraries"
         placeholder="Pick all that you like"
-        defaultValue={['react', 'next']}
-        clearButtonLabel="Clear selection"
-        clearable
+        defaultValue={['test', 'test2']}
+        validationRegex={/test.*/}
+        onValidationReject={() => {}}
       />
     </div>
   );
 }
 
-export const clearable: MantineDemo = {
+export const validationRegex: MantineDemo = {
   type: 'demo',
   code,
   component: Demo,

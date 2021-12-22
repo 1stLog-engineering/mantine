@@ -70,25 +70,6 @@ storiesOf('@mantine/core/TagInput/stories', module)
       </Group>
     </>
   ))
-  .add('Overflow value and items', () => (
-    <div style={{ padding: 40, maxWidth: 400 }}>
-      <TagInput label="Tag Input" placeholder="Input tag" />
-    </div>
-  ))
-  .add('z-index', () => (
-    <div style={{ padding: 40, maxWidth: 400 }}>
-      <TagInput label="Tag Input" placeholder="Input tag" />
-    </div>
-  ))
-  .add('Grouped and disabled data', () => (
-    <div style={{ padding: 40, maxWidth: 400 }}>
-      <TagInput
-        label="Tag Input"
-        placeholder="Input tag"
-
-      />
-    </div>
-  ))
   .add('Controlled', () => <Controlled />)
   .add('Sizes', () => <div style={{ padding: 40 }}>{sizes}</div>)
   .add('Variants', () => <div style={{ padding: 40 }}>{variants}</div>)

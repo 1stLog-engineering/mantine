@@ -67,6 +67,9 @@ export interface TagInputProps extends DefaultProps<TagInputStylesNames>, BaseSe
   /** Called for validation when add tags */
   validationRegex?: RegExp;
 
+  /** Called when validationRegex reject tags */
+  onValidationReject?: (data: string[]) => void;
+
   /** Allow to only unique */
   onlyUnique?: boolean;
 }
@@ -133,6 +136,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       addOnPaste = true,
       pasteSplit = defaultPasteSplit,
       validationRegex = /.*/,
+      onValidationReject = () => {},
       onlyUnique = false,
       ...others
     }: TagInputProps,
@@ -187,11 +191,20 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
         tags = uniq(tags);
         tags = tags.filter((tag) => _value.every((currentTag) => currentTag !== tag));
       }
-      const rejectedTags = tags.filter((tag) => validationRegex.test(tag));
+
+      const rejectedTags = tags.filter((tag) => !validationRegex.test(tag));
 
       if (maxTags >= 0) {
         const remainingLimit = Math.max(maxTags - _value.length, 0);
         tags = tags.slice(0, remainingLimit);
+      }
+
+      if (onValidationReject && rejectedTags.length > 0) {
+        onValidationReject(rejectedTags);
+      }
+
+      if (rejectedTags.length > 0) {
+        return false;
       }
 
       if (tags.length > 0) {
@@ -199,10 +212,6 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
         setValue(newValue);
         setInputValue('');
         return true;
-      }
-
-      if (rejectedTags.length > 0) {
-        return false;
       }
 
       setInputValue('');
