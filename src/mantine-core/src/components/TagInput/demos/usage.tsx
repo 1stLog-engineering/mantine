@@ -11,10 +11,7 @@ const code = `
 function Demo() {
   return (
     <div style={{ maxWidth: 400, marginLeft: 'auto', marginRight: 'auto' }}>
-      <TagInput
-        label="Your favorite frameworks/libraries"
-        placeholder="Pick all that you like"
-      />
+      <TagInput label="Your favorite frameworks/libraries" placeholder="Pick all that you like" />
     </div>
   );
 }

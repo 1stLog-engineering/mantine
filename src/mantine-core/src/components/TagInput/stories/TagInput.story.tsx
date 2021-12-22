@@ -10,13 +10,7 @@ function Controlled() {
   const [value, setValue] = useState([]);
   return (
     <div style={{ padding: 40, maxWidth: 400 }}>
-      <TagInput
-        label="Tag Input"
-        value={value}
-        onChange={setValue}
-        placeholder="Input tag"
-
-      />
+      <TagInput label="Tag Input" value={value} onChange={setValue} placeholder="Input tag" />
       <button type="button" onClick={() => setValue(['react', 'ng'])}>
         Set value
       </button>
@@ -32,7 +26,6 @@ const sizes = MANTINE_SIZES.map((size) => (
       label="Tag Input"
       defaultValue={['react', 'ng']}
       placeholder="Input Tag"
-
     />
     <TextInput label="Text input" placeholder="Text input" size={size} />
   </Group>
@@ -40,11 +33,7 @@ const sizes = MANTINE_SIZES.map((size) => (
 
 const variants = (['default', 'filled', 'unstyled'] as const).map((variant) => (
   <Group grow key={variant} style={{ marginTop: 30 }} direction="column">
-    <TagInput
-      variant={variant}
-      label="Tag Input"
-      placeholder="Input Tag"
-    />
+    <TagInput variant={variant} label="Tag Input" placeholder="Input Tag" />
     <TextInput label="Text input" placeholder="Text input" variant={variant} />
   </Group>
 ));
@@ -53,11 +42,7 @@ storiesOf('@mantine/core/TagInput/stories', module)
   .add('Alignment', () => (
     <>
       <Group style={{ padding: 40, paddingBottom: 0 }} grow align="flex-start">
-        <TagInput
-          label="Tag Input"
-          defaultValue={['react', 'ng']}
-          placeholder="Input tag"
-        />
+        <TagInput label="Tag Input" defaultValue={['react', 'ng']} placeholder="Input tag" />
         <TextInput label="Text input" placeholder="Input tag" />
       </Group>
       <Group style={{ padding: 40, paddingTop: 0 }} grow align="flex-start" mt="md">
@@ -85,21 +70,11 @@ storiesOf('@mantine/core/TagInput/stories', module)
   ))
   .add('Within form', () => (
     <SubmitForm>
-      <TagInput
-        label="Submit with enter"
-        defaultValue={['react', 'ng']}
-        placeholder="Input tag"
-
-      />
+      <TagInput label="Submit with enter" defaultValue={['react', 'ng']} placeholder="Input tag" />
     </SubmitForm>
   ))
   .add('RTL', () => (
     <RtlProvider>
-      <TagInput
-        label="Tag Input"
-        defaultValue={['react', 'ng']}
-        placeholder="Input tag"
-
-      />
+      <TagInput label="Tag Input" defaultValue={['react', 'ng']} placeholder="Input tag" />
     </RtlProvider>
   ));

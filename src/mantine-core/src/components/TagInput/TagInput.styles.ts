@@ -82,5 +82,4 @@ export default createStyles((theme, { size, invalid }: TagInputStyles) => ({
       cursor: 'pointer',
     },
   },
-
 }));

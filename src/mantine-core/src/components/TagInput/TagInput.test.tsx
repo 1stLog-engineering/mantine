@@ -22,9 +22,7 @@ describe('@mantine/core/TagInput', () => {
   itSupportsRef(TagInput, defaultProps, HTMLInputElement);
 
   it('passes required, invalid, icon and radius props to Input component', () => {
-    const element = shallow(
-      <TagInput required error="test-error" icon="$" radius="sm" />
-    );
+    const element = shallow(<TagInput required error="test-error" icon="$" radius="sm" />);
 
     expect(element.find(Input).prop('required')).toBe(true);
     expect(element.find(Input).prop('invalid')).toBe(true);
