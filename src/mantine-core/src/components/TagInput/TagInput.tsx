@@ -8,7 +8,7 @@ import { InputStylesNames } from '../Input/Input';
 import { InputWrapperStylesNames } from '../InputWrapper/InputWrapper';
 import useStyles, { RIGHT_SECTION_WIDTH } from './TagInput.styles';
 import { DefaultValue, DefaultValueStylesNames } from './DefaultValue/DefaultValue';
-import { DefaultRightSection } from './DefaultRightSection/DefaultRightSection';
+import { RightSection as RightSectionComponent } from './RightSection/RightSection';
 
 export type TagInputStylesNames =
   | DefaultValueStylesNames
@@ -128,7 +128,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       disabled = false,
       radius = 'sm',
       icon,
-      rightSection: RightSection = DefaultRightSection,
+      rightSection: RightSection = RightSectionComponent,
       rightSectionWidth,
       sx,
       maxTags,
