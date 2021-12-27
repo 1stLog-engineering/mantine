@@ -9,12 +9,7 @@ export interface RightSectionProps {
   size: MantineSize;
 }
 
-export function RightSection({
-  shouldClear,
-  clearButtonLabel,
-  onClear,
-  size,
-}: RightSectionProps) {
+export function RightSection({ shouldClear, clearButtonLabel, onClear, size }: RightSectionProps) {
   return shouldClear ? (
     <CloseButton
       variant="transparent"
