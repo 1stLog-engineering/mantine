@@ -13,25 +13,25 @@ import { RightSection as RightSectionComponent } from './RightSection/RightSecti
 export type TagInputStylesNames =
   | DefaultValueStylesNames
   | Exclude<
-      ClassNames<typeof useStyles>,
-      'tagInputEmpty' | 'tagInputInputHidden' | 'tagInputPointer'
-    >
+    ClassNames<typeof useStyles>,
+    'tagInputEmpty' | 'tagInputInputHidden' | 'tagInputPointer'
+  >
   | InputStylesNames
   | InputWrapperStylesNames;
 export interface TagInputProps extends DefaultProps<TagInputStylesNames>, BaseSelectProps {
   /** Input size */
   size?: MantineSize;
 
-  /** Props passed to root element (InputWrapper component) */
+  /** Properties spread to root element (InputWrapper component) */
   wrapperProps?: React.ComponentPropsWithoutRef<'div'> & { [key: string]: any };
 
-  /** Value for controlled component */
+  /** Controlled input value */
   value?: string[];
 
-  /** Default value for uncontrolled component */
+  /** Uncontrolled input defaultValue */
   defaultValue?: string[];
 
-  /** Called each time value changes */
+  /** Controlled input onChange handler */
   onChange?(value: string[]): void;
 
   /** Component used to render values */
@@ -114,7 +114,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       wrapperProps,
       value,
       defaultValue,
-      onChange = () => {},
+      onChange = () => { },
       valueComponent: Value = DefaultValue,
       id,
       onFocus,
@@ -136,7 +136,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       addOnPaste = true,
       pasteSplit = defaultPasteSplit,
       validationRegex = /.*/,
-      onValidationReject = () => {},
+      onValidationReject = () => { },
       onlyUnique = false,
       ...others
     }: TagInputProps,

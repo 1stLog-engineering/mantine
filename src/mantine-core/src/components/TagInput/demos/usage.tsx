@@ -3,15 +3,15 @@ import { TagInput } from '../TagInput';
 
 const code = `
 <TagInput
-  label="Your favorite frameworks/libraries"
-  placeholder="Pick all that you like"
+  label="Technologies that you're interested in"
+  placeholder="Add as many as you like"
 />
 `;
 
 function Demo() {
   return (
     <div style={{ maxWidth: 400, marginLeft: 'auto', marginRight: 'auto' }}>
-      <TagInput label="Your favorite frameworks/libraries" placeholder="Pick all that you like" />
+      <TagInput label="Technologies that you're interested in" placeholder="Add as many as you like" />
     </div>
   );
 }

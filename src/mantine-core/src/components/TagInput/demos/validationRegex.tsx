@@ -3,10 +3,10 @@ import { TagInput } from '../TagInput';
 
 const code = `
 <TagInput
-  label="Your favorite frameworks/libraries"
-  placeholder="Pick all that you like"
-  defaultValue={['react', 'next']}
-  validationRegex={/test.*/}
+  label="Technologies that you're interested in"
+  placeholder="Add react related packages"
+  defaultValue={['react', 'react-router']}
+  validationRegex={/react.*/}
   onValidationReject={() => {}}
 />
 `;
@@ -15,11 +15,11 @@ function Demo() {
   return (
     <div style={{ maxWidth: 400, marginLeft: 'auto', marginRight: 'auto' }}>
       <TagInput
-        label="Your favorite frameworks/libraries"
-        placeholder="Pick all that you like"
-        defaultValue={['test', 'test2']}
-        validationRegex={/test.*/}
-        onValidationReject={() => {}}
+        label="Technologies that you're interested in"
+        placeholder="Add react related packages"
+        defaultValue={['react', 'react-router']}
+        validationRegex={/react.*/}
+        onValidationReject={() => { }}
       />
     </div>
   );
