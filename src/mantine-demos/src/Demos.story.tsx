@@ -45,6 +45,7 @@ attachDemos(storiesOf('@mantine/core/MediaQuery/demos', module), demos.MediaQuer
 attachDemos(storiesOf('@mantine/core/Menu/demos', module), demos.MenuDemos);
 attachDemos(storiesOf('@mantine/core/Modal/demos', module), demos.ModalDemos);
 attachDemos(storiesOf('@mantine/core/MultiSelect/demos', module), demos.MultiSelectDemos);
+attachDemos(storiesOf('@mantine/core/TagInput/demos', module), demos.TagInputDemos);
 attachDemos(storiesOf('@mantine/core/NativeSelect/demos', module), demos.NativeSelectDemos);
 attachDemos(storiesOf('@mantine/core/Notification/demos', module), demos.NotificationDemos);
 attachDemos(storiesOf('@mantine/core/Overlay/demos', module), demos.OverlayDemos);

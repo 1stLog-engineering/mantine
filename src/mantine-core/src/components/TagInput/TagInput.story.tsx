@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { MANTINE_SIZES } from '@mantine/styles';
-import { RtlProvider, SubmitForm } from '@mantine/ds/src';
-import { Group } from '../../Group/Group';
-import { TextInput } from '../../TextInput/TextInput';
-import { TagInput } from '../TagInput';
+import { SubmitForm } from '@mantine/storybook';
+import { TagInput, Group, TextInput } from '@mantine/core';
 
 function Controlled() {
   const [value, setValue] = useState([]);
@@ -72,9 +70,9 @@ storiesOf('@mantine/core/TagInput/stories', module)
     <SubmitForm>
       <TagInput label="Submit with enter" defaultValue={['react', 'ng']} placeholder="Input tag" />
     </SubmitForm>
-  ))
-  .add('RTL', () => (
-    <RtlProvider>
-      <TagInput label="Tag Input" defaultValue={['react', 'ng']} placeholder="Input tag" />
-    </RtlProvider>
   ));
+  // .add('RTL', () => (
+  //   <RtlProvider>
+  //     <TagInput label="Tag Input" defaultValue={['react', 'ng']} placeholder="Input tag" />
+  //   </RtlProvider>
+  // ));

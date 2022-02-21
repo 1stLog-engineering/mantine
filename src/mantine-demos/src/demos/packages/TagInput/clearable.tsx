@@ -1,16 +1,14 @@
 import React from 'react';
-import { ChevronDownIcon } from '@modulz/radix-icons';
-import { TagInput } from '../TagInput';
+import { TagInput } from '@mantine/core';
 
 const code = `
 <TagInput
   label="Technologies that you're interested in"
   placeholder="Add as many as you like"
   defaultValue={['react', 'next']}
-  rightSection={() => <ChevronDownIcon />}
-  styles={{ rightSection: { pointerEvents: 'none' } }}
-/>
-`;
+  clearButtonLabel="Clear selection"
+  clearable
+/>`;
 
 function Demo() {
   return (
@@ -19,14 +17,14 @@ function Demo() {
         label="Technologies that you're interested in"
         placeholder="Add as many as you like"
         defaultValue={['react', 'next']}
-        rightSection={() => <ChevronDownIcon />}
-        styles={{ rightSection: { pointerEvents: 'none' } }}
+        clearButtonLabel="Clear selection"
+        clearable
       />
     </div>
   );
 }
 
-export const rightSection: MantineDemo = {
+export const clearable: MantineDemo = {
   type: 'demo',
   code,
   component: Demo,

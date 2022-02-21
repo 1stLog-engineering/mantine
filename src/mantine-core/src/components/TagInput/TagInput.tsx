@@ -1,6 +1,6 @@
 import React, { useState, useRef, forwardRef } from 'react';
 import { useUncontrolled, useMergedRef, useUuid } from '@mantine/hooks';
-import { DefaultProps, MantineSize, ClassNames, useExtractedMargins } from '@mantine/styles';
+import { DefaultProps, MantineSize, ClassNames, extractMargins } from '@mantine/core';
 import { InputWrapper } from '../InputWrapper';
 import { Input } from '../Input';
 import { BaseSelectProps } from '../Select/types';
@@ -146,7 +146,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       { size, invalid: !!error },
       { classNames, styles, name: 'TagInput' }
     );
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
+    const { margins, rest } = extractMargins({ others });
     const inputRef = useRef<HTMLInputElement>();
     const wrapperRef = useRef<HTMLDivElement>();
     const uuid = useUuid(id);
@@ -298,11 +298,12 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
         description={description}
         size={size}
         className={className}
-        style={mergedStyles}
+        style={style}
         classNames={classNames}
         styles={styles}
         __staticSelector="TagInput"
         sx={sx}
+        {...margins}
         {...wrapperProps}
       >
         <div

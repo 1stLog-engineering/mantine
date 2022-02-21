@@ -1,6 +1,6 @@
-import { Input } from '../Input/styles.api';
-import { InputWrapper } from '../InputWrapper/styles.api';
-import { TagInputStylesNames } from './TagInput';
+import { TagInputStylesNames } from '@mantine/core';
+import { Input } from './Input.styles-api';
+import { InputWrapper } from './InputWrapper.styles-api';
 
 const InputStyles = { ...Input };
 

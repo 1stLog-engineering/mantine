@@ -1,9 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { createStyles, MantineProvider } from '@mantine/styles';
-import { generateBorderStyles, InputStylesApiWrapper } from '@mantine/ds/src';
-import { TagInput, TagInputProps } from '../TagInput';
-import { TagInput as TagInputStylesApi } from '../styles.api';
+import { createStyles, MantineProvider, TagInput, TagInputProps } from '@mantine/core';
+import { generateBorderStyles, InputStylesApiWrapper } from '@mantine/storybook';
+import { TagInput as TagInputStylesApi } from '../styles-api';
 
 const styles = generateBorderStyles(TagInputStylesApi);
 const useStyles = createStyles(() => styles);
@@ -13,7 +12,6 @@ function Wrapper(props: Partial<TagInputProps>) {
     <InputStylesApiWrapper
       component={TagInput}
       value={['React', 'Angular']}
-      rightSection={null}
       {...props}
     />
   );

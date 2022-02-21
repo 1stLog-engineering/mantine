@@ -66,6 +66,7 @@ export * from './components/Space';
 export * from './components/Spoiler';
 export * from './components/Stepper';
 export * from './components/Switch';
+export * from './components/TagInput';
 export * from './components/Table';
 export * from './components/Tabs';
 export * from './components/Text';
