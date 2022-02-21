@@ -17,12 +17,12 @@ styles: ['Dropzone', 'FullScreenDropzone']
 import {
   MIME_TYPES,
   IMAGE_MIME_TYPE,
-  PDF_MINE_TYPE,
+  PDF_MIME_TYPE,
   MS_WORD_MIME_TYPE,
   MS_EXCEL_MIME_TYPE,
   MS_POWERPOINT_MIME_TYPE,
 } from '@mantine/dropzone';
-import * as DropzoneDemos from '@demos/dropzone';
+import { DropzoneDemos } from '@mantine/demos';
 
 ## Installation
 
@@ -105,7 +105,7 @@ Additionally you can use grouped mime types:
   head={['Variable', 'Mime types']}
   data={[
     ['IMAGE_MIME_TYPE', IMAGE_MIME_TYPE.join(', ')],
-    ['PDF_MINE_TYPE', PDF_MINE_TYPE.join(', ')],
+    ['PDF_MIME_TYPE', PDF_MIME_TYPE.join(', ')],
     ['MS_WORD_MIME_TYPE', MS_WORD_MIME_TYPE.join(', ')],
     ['MS_EXCEL_MIME_TYPE', MS_EXCEL_MIME_TYPE.join(', ')],
     ['MS_POWERPOINT_MIME_TYPE', MS_POWERPOINT_MIME_TYPE.join(', ')],
@@ -140,8 +140,8 @@ function Demo() {
 ## FullScreenDropzone component
 
 FullScreenDropzone lets you capture files dropped to browser window instead of specific area.
-Component is build without react-dropzone (due to some bugs in mime types detections) but supports the same props
-and features as Dropzone component shown above (except `maxSize` and `loading` props).
+Component is built without react-dropzone (due to some bugs in mime types detections) but supports the same props
+and features as Dropzone component shown above (except `maxSize`, `onReject`, and `loading` props).
 
 To preview component click button and drop images to browser window:
 

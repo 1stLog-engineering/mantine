@@ -1,4 +1,9 @@
 export { getPrismTheme } from './prism-theme';
-export { Prism } from './Prism';
-
-export type { PrismProps } from './Prism';
+export { Prism, PrismTabs, PrismTab } from './Prism';
+export type {
+  PrismProps,
+  PrismStylesNames,
+  PrismTabsProps,
+  PrismTabProps,
+  PrismTabsStylesNames,
+} from './Prism';

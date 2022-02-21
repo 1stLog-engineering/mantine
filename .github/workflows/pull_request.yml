@@ -25,7 +25,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Build all packages
-        run: npm run build all
+      - name: Build public packages
+        run: npm run build:all
       - name: Run syncpack, eslint, tsc and jest
         run: npm test

@@ -3,14 +3,15 @@ import React, { useState, useRef, forwardRef, useEffect } from 'react';
 import { useUncontrolled, useMergedRef, upperFirst } from '@mantine/hooks';
 import { useMantineTheme } from '@mantine/core';
 import { FirstDayOfWeek } from '../../types';
-import { Calendar, CalendarSettings } from '../Calendar/Calendar';
+import { Calendar } from '../Calendar/Calendar';
+import { CalendarSharedProps } from '../CalendarBase/CalendarBase';
 import { DatePickerBase, DatePickerBaseSharedProps } from '../DatePickerBase/DatePickerBase';
 
 export interface DatePickerProps
   extends Omit<DatePickerBaseSharedProps, 'onChange'>,
-    Omit<CalendarSettings, 'size'> {
+    Omit<CalendarSharedProps, 'size' | 'classNames' | 'styles'> {
   /** Selected date, required with controlled input */
-  value?: Date;
+  value?: Date | null;
 
   /** Called when date changes */
   onChange?(value: Date | null): void;
@@ -57,8 +58,6 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
       previousMonthLabel,
       closeCalendarOnChange = true,
       labelFormat = 'MMMM YYYY',
-      withSelect = false,
-      yearsRange,
       dayClassName,
       dayStyle,
       disableOutsideEvents,
@@ -81,6 +80,10 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
       onFocus,
       onBlur,
       amountOfMonths,
+      allowLevelChange,
+      initialLevel,
+      onDropdownClose,
+      onDropdownOpen,
       ...others
     }: DatePickerProps,
     ref
@@ -106,6 +109,16 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
       _value instanceof Date ? upperFirst(dayjs(_value).locale(finalLocale).format(dateFormat)) : ''
     );
 
+    const closeDropdown = () => {
+      setDropdownOpened(false);
+      onDropdownClose?.();
+    };
+
+    const openDropdown = () => {
+      setDropdownOpened(true);
+      onDropdownOpen?.();
+    };
+
     useEffect(() => {
       if (value === null && !focused) {
         setInputState('');
@@ -119,7 +132,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
     const handleValueChange = (date: Date) => {
       setValue(date);
       setInputState(upperFirst(dayjs(date).locale(finalLocale).format(dateFormat)));
-      closeCalendarOnChange && setDropdownOpened(false);
+      closeCalendarOnChange && closeDropdown();
       window.setTimeout(() => inputRef.current?.focus(), 0);
     };
 
@@ -127,24 +140,47 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
       setValue(null);
       setLastValidValue(null);
       setInputState('');
-      setDropdownOpened(true);
+      openDropdown();
       inputRef.current?.focus();
     };
 
     const parseDate = (date: string) =>
       dateParser ? dateParser(date) : dayjs(date, dateFormat, finalLocale).toDate();
 
-    const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-      typeof onBlur === 'function' && onBlur(event);
-      setFocused(false);
-      const date = typeof _value === 'string' ? parseDate(_value) : _value;
+    const setDateFromInput = () => {
+      let date = typeof _value === 'string' ? parseDate(_value) : _value;
+
+      if (maxDate && dayjs(date).isAfter(maxDate)) {
+        date = maxDate;
+      }
+
+      if (minDate && dayjs(date).isBefore(minDate)) {
+        date = minDate;
+      }
 
       if (dayjs(date).isValid()) {
         setValue(date);
         setLastValidValue(date);
         setInputState(upperFirst(dayjs(date).locale(finalLocale).format(dateFormat)));
+        setCalendarMonth(date);
       } else if (fixOnBlur) {
         setValue(lastValidValue);
+      }
+    };
+
+    const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+      typeof onBlur === 'function' && onBlur(event);
+      setFocused(false);
+
+      if (allowFreeInput) {
+        setDateFromInput();
+      }
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.code === 'Enter' && allowFreeInput) {
+        closeDropdown();
+        setDateFromInput();
       }
     };
 
@@ -154,7 +190,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setDropdownOpened(true);
+      openDropdown();
 
       const date = parseDate(event.target.value);
       if (dayjs(date).isValid()) {
@@ -181,6 +217,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
         onChange={handleChange}
         onBlur={handleInputBlur}
         onFocus={handleInputFocus}
+        onKeyDown={handleKeyDown}
         name={name}
         inputLabel={inputState}
         __staticSelector="DatePicker"
@@ -190,6 +227,9 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
         onClear={handleClear}
         disabled={disabled}
         withinPortal={withinPortal}
+        amountOfMonths={amountOfMonths}
+        onDropdownClose={onDropdownClose}
+        onDropdownOpen={onDropdownOpen}
         {...others}
       >
         <Calendar
@@ -204,8 +244,6 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
           value={_value instanceof Date ? _value : dayjs(_value).toDate()}
           onChange={handleValueChange}
           labelFormat={labelFormat}
-          withSelect={withSelect && !allowFreeInput}
-          yearsRange={yearsRange}
           dayClassName={dayClassName}
           dayStyle={dayStyle}
           disableOutsideEvents={disableOutsideEvents}
@@ -218,6 +256,8 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
           firstDayOfWeek={firstDayOfWeek}
           preventFocus={allowFreeInput}
           amountOfMonths={amountOfMonths}
+          allowLevelChange={allowLevelChange}
+          initialLevel={initialLevel}
         />
       </DatePickerBase>
     );

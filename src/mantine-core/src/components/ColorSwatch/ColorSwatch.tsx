@@ -2,10 +2,10 @@ import React, { forwardRef } from 'react';
 import {
   DefaultProps,
   MantineNumberSize,
-  useExtractedMargins,
   PolymorphicComponentProps,
   PolymorphicRef,
 } from '@mantine/styles';
+import { Box } from '../Box';
 import useStyles from './ColorSwatch.styles';
 
 interface _ColorSwatchProps extends DefaultProps {
@@ -19,16 +19,15 @@ interface _ColorSwatchProps extends DefaultProps {
   radius?: MantineNumberSize;
 }
 
-export type ColorSwatchProps<C extends React.ElementType> = PolymorphicComponentProps<
-  C,
-  _ColorSwatchProps
->;
+export type ColorSwatchProps<C> = C extends React.ElementType
+  ? PolymorphicComponentProps<C, _ColorSwatchProps>
+  : never;
 
-type ColorSwatchComponent = <C extends React.ElementType = 'div'>(
-  props: ColorSwatchProps<C>
-) => React.ReactElement;
+type ColorSwatchComponent = (<C = 'div'>(props: ColorSwatchProps<C>) => React.ReactElement) & {
+  displayName?: string;
+};
 
-export const ColorSwatch: ColorSwatchComponent & { displayName?: string } = forwardRef(
+export const ColorSwatch: ColorSwatchComponent = forwardRef(
   <C extends React.ElementType = 'div'>(
     {
       component,
@@ -37,8 +36,6 @@ export const ColorSwatch: ColorSwatchComponent & { displayName?: string } = forw
       radius = 25,
       className,
       children,
-      style,
-      sx,
       classNames,
       styles,
       ...others
@@ -47,19 +44,21 @@ export const ColorSwatch: ColorSwatchComponent & { displayName?: string } = forw
   ) => {
     const { classes, cx } = useStyles(
       { radius, size },
-      { sx, classNames, styles, name: 'ColorSwatch' }
+      { classNames, styles, name: 'ColorSwatch' }
     );
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
-
-    const Element = component || 'div';
 
     return (
-      <Element className={cx(classes.root, className)} style={mergedStyles} ref={ref} {...rest}>
+      <Box<any>
+        component={component || 'div'}
+        className={cx(classes.root, className)}
+        ref={ref}
+        {...others}
+      >
         <div className={cx(classes.alphaOverlay, classes.overlay)} />
         <div className={cx(classes.shadowOverlay, classes.overlay)} />
         <div className={classes.overlay} style={{ backgroundColor: color }} />
         <div className={cx(classes.children, classes.overlay)}>{children}</div>
-      </Element>
+      </Box>
     );
   }
 );

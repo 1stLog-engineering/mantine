@@ -34,12 +34,7 @@ function Controlled() {
   );
 }
 
-storiesOf('@mantine/dates/TimeRangeInput', module)
-  .add('General usage', () => (
-    <div style={{ width: 400, padding: 40 }}>
-      <TimeRangeInput label="Time Range input" withSeconds />
-    </div>
-  ))
+storiesOf('@mantine/dates/TimeRangeInput/stories', module)
   .add('Controlled', () => (
     <div style={{ width: 400, padding: 40 }}>
       <Controlled />

@@ -13,7 +13,7 @@ docs: 'core/NumberInput.mdx'
 styles: ['NumberInput']
 ---
 
-import { NumberInputDemos } from '@demos/core';
+import { NumberInputDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -38,6 +38,13 @@ When user clicks controls or presses up/down arrows, value is incremented/decrem
 
 <Demo data={NumberInputDemos.step} />
 
+## Increment/decrement on hold
+
+Set `stepHoldDelay` and `stepHoldInterval` props to define behavior when increment/decrement controls are clicked and hold,
+this will also overwrite default up and down arrows behavior:
+
+<Demo data={NumberInputDemos.hold} />
+
 ## Decimal steps
 
 To use decimal steps set following props:
@@ -46,6 +53,12 @@ To use decimal steps set following props:
 - `precision` – amount of significant digits
 
 <Demo data={NumberInputDemos.decimal} />
+
+## Decimal separator
+
+To change decimal separator set `decimalSeparator` prop:
+
+<Demo data={NumberInputDemos.decimalSeparator} />
 
 ## Remove controls
 

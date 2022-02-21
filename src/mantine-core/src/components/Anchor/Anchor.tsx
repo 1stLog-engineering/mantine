@@ -3,21 +3,20 @@ import { PolymorphicComponentProps, PolymorphicRef } from '@mantine/styles';
 import { Text, SharedTextProps } from '../Text/Text';
 import useStyles from './Anchor.styles';
 
-export type AnchorProps<C extends React.ElementType> = PolymorphicComponentProps<
-  C,
-  SharedTextProps
->;
+export type AnchorProps<C> = C extends React.ElementType
+  ? PolymorphicComponentProps<C, SharedTextProps>
+  : never;
 
-type AnchorComponent = <C extends React.ElementType = 'a'>(
-  props: AnchorProps<C>
-) => React.ReactElement;
+type AnchorComponent = (<C = 'a'>(props: AnchorProps<C>) => React.ReactElement) & {
+  displayName?: string;
+};
 
-export const Anchor: AnchorComponent & { displayName?: string } = forwardRef(
+export const Anchor: AnchorComponent = forwardRef(
   <C extends React.ElementType = 'a'>(
-    { component, className, sx, classNames, styles, ...others }: AnchorProps<C>,
+    { component, className, classNames, styles, ...others }: AnchorProps<C>,
     ref: PolymorphicRef<C>
   ) => {
-    const { classes, cx } = useStyles(null, { name: 'Anchor', sx, classNames, styles });
+    const { classes, cx } = useStyles(null, { name: 'Anchor', classNames, styles });
     const buttonProps = component === 'button' ? { type: 'button' } : null;
 
     return (

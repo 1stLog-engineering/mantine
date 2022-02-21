@@ -1,6 +1,7 @@
 import React, { forwardRef, useRef } from 'react';
 import { DefaultProps, MantineShadow, ClassNames, getDefaultZIndex } from '@mantine/styles';
 import type { Placement } from '@popperjs/core';
+import { SelectScrollArea } from '../SelectScrollArea/SelectScrollArea';
 import { MantineTransition } from '../../Transition';
 import { Paper } from '../../Paper';
 import useStyles from './SelectDropdown.styles';
@@ -23,7 +24,9 @@ interface SelectDropdownProps extends DefaultProps<SelectDropdownStylesNames> {
   referenceElement?: HTMLElement;
   direction?: React.CSSProperties['flexDirection'];
   onDirectionChange?: (direction: React.CSSProperties['flexDirection']) => void;
+  switchDirectionOnFlip?: boolean;
   zIndex?: number;
+  dropdownPosition?: 'bottom' | 'top' | 'flip';
 }
 
 export const SelectDropdown = forwardRef<HTMLDivElement, SelectDropdownProps>(
@@ -44,12 +47,17 @@ export const SelectDropdown = forwardRef<HTMLDivElement, SelectDropdownProps>(
       referenceElement,
       direction = 'column',
       onDirectionChange,
+      switchDirectionOnFlip = false,
       zIndex = getDefaultZIndex('popover'),
+      dropdownPosition = 'flip',
       __staticSelector,
     }: SelectDropdownProps,
     ref
   ) => {
-    const { classes } = useStyles(null, { classNames, styles, name: __staticSelector });
+    const { classes } = useStyles(
+      { native: dropdownComponent !== SelectScrollArea },
+      { classNames, styles, name: __staticSelector }
+    );
 
     const previousPlacement = useRef<Placement>('bottom');
 
@@ -59,15 +67,19 @@ export const SelectDropdown = forwardRef<HTMLDivElement, SelectDropdownProps>(
         mounted={mounted}
         transition={transition}
         transitionDuration={transitionDuration}
+        exitTransitionDuration={0}
         transitionTimingFunction={transitionTimingFunction}
-        position="bottom"
+        position={dropdownPosition === 'flip' ? 'bottom' : dropdownPosition}
         withinPortal={withinPortal}
-        placementFallbacks={['top']}
         zIndex={zIndex}
         modifiers={[
           {
             name: 'preventOverflow',
             enabled: false,
+          },
+          {
+            name: 'flip',
+            enabled: dropdownPosition === 'flip',
           },
           {
             // @ts-ignore
@@ -95,7 +107,7 @@ export const SelectDropdown = forwardRef<HTMLDivElement, SelectDropdownProps>(
 
                 const nextDirection = state.placement === 'top' ? 'column-reverse' : 'column';
 
-                if (direction !== nextDirection) {
+                if (direction !== nextDirection && switchDirectionOnFlip) {
                   onDirectionChange && onDirectionChange(nextDirection);
                 }
               }
@@ -114,7 +126,9 @@ export const SelectDropdown = forwardRef<HTMLDivElement, SelectDropdownProps>(
             ref={ref}
             onMouseDown={(event) => event.preventDefault()}
           >
-            <div style={{ display: 'flex', flexDirection: direction }}>{children}</div>
+            <div style={{ display: 'flex', flexDirection: direction, width: '100%' }}>
+              {children}
+            </div>
           </Paper>
         </div>
       </Popper>

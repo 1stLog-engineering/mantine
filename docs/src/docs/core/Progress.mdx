@@ -13,7 +13,7 @@ docs: 'core/Progress.mdx'
 styles: ['Progress']
 ---
 
-import { ProgressDemos, PasswordInputDemos } from '@demos/core';
+import { ProgressDemos, PasswordInputDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -29,6 +29,12 @@ You can display multiple sections instead of a single progress bar.
 Note that in this case `value` prop will be ignored:
 
 <Demo data={ProgressDemos.sections} />
+
+## Colors
+
+In previous examples colors from `theme.colors` were used, but any other css colors can be used instead:
+
+<Demo data={ProgressDemos.colors} />
 
 ## Example
 
@@ -56,6 +62,10 @@ Alternatively, you can use a number to set radius in px:
 <Progress radius="lg" /> // -> theme predefined large radius
 <Progress radius={10} /> // -> { borderRadius: 10 }
 ```
+
+## With label
+
+<Demo data={ProgressDemos.label} />
 
 ## Accessibility
 

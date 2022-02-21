@@ -10,7 +10,7 @@ import {
   DefaultProps,
   MantineSize,
   MantineShadow,
-  useExtractedMargins,
+  extractMargins,
   getDefaultZIndex,
 } from '@mantine/styles';
 import { SelectScrollArea } from './SelectScrollArea/SelectScrollArea';
@@ -21,32 +21,29 @@ import { DefaultItem } from './DefaultItem/DefaultItem';
 import { getSelectRightSectionProps } from './SelectRightSection/get-select-right-section-props';
 import { SelectItems } from './SelectItems/SelectItems';
 import { SelectDropdown } from './SelectDropdown/SelectDropdown';
-import { SelectDataItem, SelectItem, BaseSelectStylesNames, BaseSelectProps } from './types';
+import { SelectItem, BaseSelectStylesNames, BaseSelectProps } from './types';
 import { filterData } from './filter-data/filter-data';
-import { groupSortData } from './group-sort-data/group-sort-data';
+import { groupOptions } from '../../utils';
 import useStyles from './Select.styles';
 
-export interface SelectProps extends DefaultProps<BaseSelectStylesNames>, BaseSelectProps {
-  /** Input size */
-  size?: MantineSize;
-
+export interface SelectSharedProps<Item, Value> {
   /** Select data used to renderer items in dropdown */
-  data: SelectDataItem[];
-
-  /** Change item renderer */
-  itemComponent?: React.FC<any>;
-
-  /** Dropdown shadow from theme or any value to set box-shadow */
-  shadow?: MantineShadow;
+  data: (string | Item)[];
 
   /** Controlled input value */
-  value?: string | null;
+  value?: Value;
 
   /** Uncontrolled input defaultValue */
-  defaultValue?: string | null;
+  defaultValue?: Value;
 
   /** Controlled input onChange handler */
-  onChange?(value: string | null): void;
+  onChange?(value: Value): void;
+
+  /** Function based on which items in dropdown are filtered */
+  filter?(value: string, item: Item): boolean;
+
+  /** Input size */
+  size?: MantineSize;
 
   /** Dropdown body appear/disappear transition */
   transition?: MantineTransition;
@@ -57,29 +54,55 @@ export interface SelectProps extends DefaultProps<BaseSelectStylesNames>, BaseSe
   /** Dropdown body transition timing function, defaults to theme.transitionTimingFunction */
   transitionTimingFunction?: string;
 
+  /** Dropdown shadow from theme or any value to set box-shadow */
+  shadow?: MantineShadow;
+
   /** Initial dropdown opened state */
   initiallyOpened?: boolean;
 
-  /** Function based on which items in dropdown are filtered */
-  filter?(value: string, item: SelectItem): boolean;
+  /** Change item renderer */
+  itemComponent?: React.FC<any>;
 
+  /** Called when dropdown is opened */
+  onDropdownOpen?(): void;
+
+  /** Called when dropdown is closed */
+  onDropdownClose?(): void;
+
+  /** Whether to render the dropdown in a Portal */
+  withinPortal?: boolean;
+
+  /** Limit amount of items displayed at a time for searchable select */
+  limit?: number;
+
+  /** Nothing found label */
+  nothingFound?: React.ReactNode;
+
+  /** Dropdown z-index */
+  zIndex?: number;
+
+  /** Dropdown positioning behavior */
+  dropdownPosition?: 'bottom' | 'top' | 'flip';
+
+  /** Whether to switch item order and keyboard navigation on dropdown position flip */
+  switchDirectionOnFlip?: boolean;
+}
+
+export interface SelectProps
+  extends DefaultProps<BaseSelectStylesNames>,
+    BaseSelectProps,
+    SelectSharedProps<SelectItem, string | null> {
   /** Maximum dropdown height in px */
   maxDropdownHeight?: number;
 
   /** Set to true to enable search */
   searchable?: boolean;
 
-  /** Nothing found label */
-  nothingFound?: React.ReactNode;
-
   /** Allow to clear item */
   clearable?: boolean;
 
   /** aria-label for clear button */
   clearButtonLabel?: string;
-
-  /** Limit amount of items displayed at a time for searchable select */
-  limit?: number;
 
   /** Called each time search value changes */
   onSearchChange?(query: string): void;
@@ -99,17 +122,11 @@ export interface SelectProps extends DefaultProps<BaseSelectStylesNames>, BaseSe
   /** Change dropdown component, can be used to add native scrollbars */
   dropdownComponent?: any;
 
-  /** Called when dropdown is opened */
-  onDropdownOpen?(): void;
+  /** Select highlighted item on blur */
+  selectOnBlur?: boolean;
 
-  /** Called when dropdown is closed */
-  onDropdownClose?(): void;
-
-  /** Whether to render the dropdown in a Portal */
-  withinPortal?: boolean;
-
-  /** Dropdown z-index */
-  zIndex?: number;
+  /** Allow deselecting items on click */
+  allowDeselect?: boolean;
 }
 
 export function defaultFilter(value: string, item: SelectItem) {
@@ -117,7 +134,7 @@ export function defaultFilter(value: string, item: SelectItem) {
 }
 
 export function defaultShouldCreate(query: string, data: SelectItem[]) {
-  return !!query && !data.some((item) => item.value.toLowerCase() === query.toLowerCase());
+  return !!query && !data.some((item) => item.label.toLowerCase() === query.toLowerCase());
 }
 
 export const Select = forwardRef<HTMLInputElement, SelectProps>(
@@ -161,20 +178,24 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
       creatable = false,
       getCreateLabel,
       shouldCreate = defaultShouldCreate,
+      selectOnBlur = false,
       onCreate,
       sx,
       dropdownComponent,
       onDropdownClose,
       onDropdownOpen,
       withinPortal,
+      switchDirectionOnFlip = false,
       zIndex = getDefaultZIndex('popover'),
       name,
+      dropdownPosition,
+      allowDeselect,
       ...others
     }: SelectProps,
     ref
   ) => {
     const { classes, cx, theme } = useStyles();
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
+    const { margins, rest } = extractMargins(others);
     const [dropdownOpened, _setDropdownOpened] = useState(initiallyOpened);
     const [hovered, setHovered] = useState(-1);
     const inputRef = useRef<HTMLInputElement>();
@@ -190,10 +211,14 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
       isList: true,
     });
 
+    const isDeselectable = allowDeselect === undefined ? clearable : allowDeselect;
+
     const setDropdownOpened = (opened: boolean) => {
-      _setDropdownOpened(opened);
-      const handler = opened ? onDropdownOpen : onDropdownClose;
-      typeof handler === 'function' && handler();
+      if (dropdownOpened !== opened) {
+        _setDropdownOpened(opened);
+        const handler = opened ? onDropdownOpen : onDropdownClose;
+        typeof handler === 'function' && handler();
+      }
     };
 
     const isCreatable = creatable && typeof getCreateLabel === 'function';
@@ -203,7 +228,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
       typeof item === 'string' ? { label: item, value: item } : item
     );
 
-    const sortedData = groupSortData({ data: formattedData });
+    const sortedData = groupOptions({ data: formattedData });
 
     const [_value, handleChange, inputMode] = useUncontrolled({
       value,
@@ -241,19 +266,30 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
       }
     }, [_value]);
 
+    useEffect(() => {
+      if (selectedValue && (!searchable || !dropdownOpened)) {
+        handleSearchChange(selectedValue.label);
+      }
+    }, [selectedValue?.label]);
+
     const handleItemSelect = (item: SelectItem) => {
-      handleChange(item.value);
+      if (isDeselectable && selectedValue?.value === item.value) {
+        handleChange(null);
+        setDropdownOpened(false);
+      } else {
+        handleChange(item.value);
 
-      if (item.creatable) {
-        typeof onCreate === 'function' && onCreate(item.value);
-      }
+        if (item.creatable) {
+          typeof onCreate === 'function' && onCreate(item.value);
+        }
 
-      if (inputMode === 'uncontrolled') {
-        handleSearchChange(item.label);
+        if (inputMode === 'uncontrolled') {
+          handleSearchChange(item.label);
+        }
+        setHovered(-1);
+        setDropdownOpened(false);
+        inputRef.current.focus();
       }
-      setHovered(-1);
-      setTimeout(() => setDropdownOpened(false));
-      inputRef.current.focus();
     };
 
     const filteredData = filterData({
@@ -400,6 +436,9 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
     const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
       typeof onBlur === 'function' && onBlur(event);
       const selected = sortedData.find((item) => item.value === _value);
+      if (selectOnBlur && filteredData[hovered] && dropdownOpened) {
+        handleItemSelect(filteredData[hovered]);
+      }
       handleSearchChange(selected?.label || '');
       setDropdownOpened(false);
     };
@@ -408,6 +447,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
       typeof onFocus === 'function' && onFocus(event);
       if (searchable) {
         setDropdownOpened(true);
+        scrollSelectedItemIntoView();
       }
     };
 
@@ -423,13 +463,15 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
     };
 
     const handleInputClick = () => {
+      let dropdownOpen = true;
+
       if (!searchable) {
-        setDropdownOpened(!dropdownOpened);
-      } else {
-        setDropdownOpened(true);
+        dropdownOpen = !dropdownOpened;
       }
 
-      if (_value && !dropdownOpened) {
+      setDropdownOpened(dropdownOpen);
+
+      if (_value && dropdownOpen) {
         setHovered(selectedItemIndex);
         scrollSelectedItemIntoView();
       }
@@ -448,11 +490,12 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
         description={description}
         size={size}
         className={className}
-        style={mergedStyles}
+        style={style}
         classNames={classNames}
         styles={styles}
         __staticSelector="Select"
         sx={sx}
+        {...margins}
         {...wrapperProps}
       >
         <div
@@ -465,6 +508,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
           tabIndex={-1}
         >
           <Input<'input'>
+            autoComplete="nope"
             {...rest}
             type="text"
             required={required}
@@ -485,7 +529,7 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
             readOnly={!searchable}
             disabled={disabled}
             data-mantine-stop-propagation={shouldShowDropdown}
-            autoComplete="off"
+            name={name}
             classNames={{
               ...classNames,
               input: cx({ [classes.input]: !searchable }, classNames?.input),
@@ -519,8 +563,10 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
             dropdownComponent={dropdownComponent || SelectScrollArea}
             direction={direction}
             onDirectionChange={setDirection}
+            switchDirectionOnFlip={switchDirectionOnFlip}
             withinPortal={withinPortal}
             zIndex={zIndex}
+            dropdownPosition={dropdownPosition}
           >
             <SelectItems
               data={filteredData}
@@ -541,8 +587,6 @@ export const Select = forwardRef<HTMLInputElement, SelectProps>(
             />
           </SelectDropdown>
         </div>
-
-        {name && <input type="hidden" name={name} value={_value || ''} />}
       </InputWrapper>
     );
   }

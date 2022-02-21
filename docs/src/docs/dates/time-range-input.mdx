@@ -12,7 +12,7 @@ docs: 'dates/TimeRangeInput.mdx'
 styles: ['TimeRangeInput']
 ---
 
-import { TimeRangeInputDemos } from '@demos/dates';
+import { TimeRangeInputDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -26,16 +26,6 @@ import { TimeRangeInputDemos } from '@demos/dates';
 
 TimeRangeInput component uses the same props as [TimeInput](/dates/time-input/) component,
 With differences in `value`, `onChange`, `defaultValue` and some additional props like `labelSeparator`.
-
-## Server side rendering
-
-Component uses [use-id](/hooks/use-id/) hook to generate unique ids and aria- attributes,
-provide static `id` prop to prevent props mismatch:
-
-```tsx
-<TimeRangeInput /> // -> random id generated both on client and server, props mismatch warning
-<TimeRangeInput id="my-time-range-input" /> // -> id is static, no mismatches
-```
 
 ## Accessibility and usability
 

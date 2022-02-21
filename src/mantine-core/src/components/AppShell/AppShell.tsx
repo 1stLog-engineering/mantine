@@ -2,13 +2,13 @@ import React, { forwardRef } from 'react';
 import {
   MantineNumberSize,
   DefaultProps,
-  MantineTheme,
   useMantineTheme,
   ClassNames,
   MantineMargin,
   getDefaultZIndex,
 } from '@mantine/styles';
-import { getSortedBreakpoints } from './get-sorted-breakpoints';
+import { Box } from '../Box';
+import { getElementHeight, getNavbarBreakpoints, getNavbarBaseWidth } from './utils';
 import useStyles from './AppShell.styles';
 
 export type AppShellStylesNames = ClassNames<typeof useStyles>;
@@ -36,26 +36,6 @@ export interface AppShellProps extends Omit<DefaultProps<AppShellStylesNames>, M
   navbarOffsetBreakpoint?: MantineNumberSize;
 }
 
-function getElementHeight(element: React.ReactElement) {
-  const height = element?.props?.height;
-  return typeof height === 'number' ? `${height}px` : typeof height === 'string' ? height : '0px';
-}
-
-function getNavbarWidth(element: React.ReactElement) {
-  const width = element?.props?.width?.base;
-  return typeof width === 'number' ? `${width}px` : typeof width === 'string' ? width : '0px';
-}
-
-function getNavbarBreakpoints(element: React.ReactElement, theme: MantineTheme) {
-  const breakpoints = element?.props?.width;
-  return breakpoints != null
-    ? getSortedBreakpoints<{ width: number | string; height: number | string }>(
-        breakpoints as any,
-        theme
-      )
-    : [];
-}
-
 export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(
   (
     {
@@ -69,14 +49,13 @@ export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(
       className,
       styles,
       classNames,
-      sx,
       ...others
     }: AppShellProps,
     ref
   ) => {
     const theme = useMantineTheme();
     const navbarBreakpoints = getNavbarBreakpoints(navbar, theme);
-    const navbarWidth = getNavbarWidth(navbar);
+    const navbarWidth = getNavbarBaseWidth(navbar);
     const headerHeight = getElementHeight(header);
     const navbarHeight = getElementHeight(navbar);
     const { classes, cx } = useStyles(
@@ -88,7 +67,7 @@ export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(
         navbarBreakpoints,
         navbarOffsetBreakpoint,
       },
-      { styles, classNames, sx, name: 'AppShell' }
+      { styles, classNames, name: 'AppShell' }
     );
     const _header = header ? React.cloneElement(header, { fixed, zIndex }) : null;
     const _navbar = navbar
@@ -101,14 +80,14 @@ export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(
       : null;
 
     return (
-      <div className={cx(classes.root, className)} ref={ref} {...others}>
+      <Box className={cx(classes.root, className)} ref={ref} {...others}>
         {_header}
 
         <div className={classes.body}>
           {_navbar}
           <main className={classes.main}>{children}</main>
         </div>
-      </div>
+      </Box>
     );
   }
 );

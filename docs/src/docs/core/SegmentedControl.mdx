@@ -13,7 +13,7 @@ docs: 'core/SegmentedControl.mdx'
 styles: ['SegmentedControl']
 ---
 
-import { SegmentedControlDemos } from '@demos/core';
+import { SegmentedControlDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -83,7 +83,7 @@ You can use any React node as label in `data` prop:
 ## Full width
 
 By default SegmentedControl is inline and will take only the amount of space which is required to render elements.
-Set `fullWidth` prop to make it block and take 100% width of its container:
+Set `fullWidth` prop to make it block and take 100% width of its container.
 
 <Demo data={SegmentedControlDemos.fullWidth} />
 
@@ -130,19 +130,6 @@ Change transition properties with:
 - **transitionTimingFunction** – defaults to `theme.transitionTimingFunction`
 
 <Demo data={SegmentedControlDemos.transitions} />
-
-## Resize observer
-
-SegmentedControl uses [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver)
-to calculate active control background position. Position changes on container width change with 50ms debounce to avoid performance issue.
-
-ResizeObserver is [supported by all modern browsers](https://caniuse.com/resizeobserver),
-if you encounter any errors with browser compatibility use [polyfill](https://www.npmjs.com/package/resize-observer-polyfill):
-
-```tsx
-import ResizeObserver from 'resize-observer-polyfill';
-window.ResizeObserver = ResizeObserver;
-```
 
 ## Accessibility and usability
 

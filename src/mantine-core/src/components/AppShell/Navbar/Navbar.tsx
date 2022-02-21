@@ -1,5 +1,11 @@
 import React, { forwardRef } from 'react';
-import { ClassNames, DefaultProps, MantineNumberSize, getDefaultZIndex } from '@mantine/styles';
+import {
+  ClassNames,
+  DefaultProps,
+  MantineNumberSize,
+  getDefaultZIndex,
+  ForwardRefWithStaticComponents,
+} from '@mantine/styles';
 import { Box } from '../../Box';
 import { NavbarSection } from './NavbarSection/NavbarSection';
 import useStyles, { NavbarPosition, NavbarWidth } from './Navbar.styles';
@@ -8,7 +14,7 @@ export type NavbarStylesNames = ClassNames<typeof useStyles>;
 
 export interface NavbarProps
   extends DefaultProps<NavbarStylesNames>,
-    React.ComponentPropsWithoutRef<'nav'> {
+    React.ComponentPropsWithRef<'nav'> {
   /** Navbar width with breakpoints */
   width?: NavbarWidth;
 
@@ -37,10 +43,10 @@ export interface NavbarProps
   zIndex?: number;
 }
 
-type NavbarComponent = ((props: NavbarProps) => React.ReactElement) & {
-  displayName: string;
-  Section: typeof NavbarSection;
-};
+type NavbarComponent = ForwardRefWithStaticComponents<
+  NavbarProps,
+  { Section: typeof NavbarSection }
+>;
 
 export const Navbar: NavbarComponent = forwardRef<HTMLElement, NavbarProps>(
   (
@@ -56,7 +62,6 @@ export const Navbar: NavbarComponent = forwardRef<HTMLElement, NavbarProps>(
       className,
       classNames,
       styles,
-      sx,
       children,
       ...others
     }: NavbarProps,
@@ -64,7 +69,7 @@ export const Navbar: NavbarComponent = forwardRef<HTMLElement, NavbarProps>(
   ) => {
     const { classes, cx } = useStyles(
       { width, height, padding, fixed, position, hiddenBreakpoint, zIndex },
-      { classNames, styles, sx, name: 'Navbar' }
+      { classNames, styles, name: 'Navbar' }
     );
 
     return (

@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useEffect, forwardRef } from 'react';
 import Editor, { Quill } from 'react-quill';
-import { DefaultProps, ClassNames, useExtractedMargins } from '@mantine/core';
+import 'quill-mention';
+import { DefaultProps, ClassNames, Box, MantineNumberSize } from '@mantine/core';
 import { useUuid, mergeRefs } from '@mantine/hooks';
 import { Toolbar, ToolbarStylesNames } from '../Toolbar/Toolbar';
 import { DEFAULT_CONTROLS } from './default-control';
@@ -54,8 +55,20 @@ export interface RichTextEditorProps
   /** Make toolbar sticky */
   sticky?: boolean;
 
+  /** Quill mentions plugin setting */
+  mentions?: Record<string, any>;
+
   /** Top toolbar position in any valid css value */
   stickyOffset?: number | string;
+
+  /** Radius from theme.radius, or number to set border-radius in px */
+  radius?: MantineNumberSize;
+
+  /** Make quill editor read only */
+  readOnly?: boolean;
+
+  /** Extra modules for react-quill */
+  modules?: Record<string, any>;
 }
 
 export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
@@ -66,14 +79,17 @@ export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
       onImageUpload = defaultImageUpload,
       sticky = true,
       stickyOffset = 0,
+      radius = 'sm',
       labels = DEFAULT_LABELS,
       controls = DEFAULT_CONTROLS,
       id,
-      style,
       className,
       classNames,
       styles,
-      sx,
+      placeholder,
+      mentions,
+      readOnly = false,
+      modules: externalModules,
       ...others
     }: RichTextEditorProps,
     ref
@@ -81,19 +97,26 @@ export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
     const uuid = useUuid(id);
     const editorRef = useRef<Editor>();
     const { classes, cx } = useStyles(
-      { saveLabel: labels.save, editLabel: labels.edit, removeLabel: labels.remove },
-      { sx, classNames, styles, name: 'RichTextEditor' }
+      {
+        saveLabel: labels.save,
+        editLabel: labels.edit,
+        removeLabel: labels.remove,
+        radius,
+        readOnly,
+      },
+      { classNames, styles, name: 'RichTextEditor' }
     );
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
 
     const modules = useMemo(
       () => ({
+        ...externalModules,
         ...(uuid ? { toolbar: { container: `#${uuid}` } } : undefined),
+        mention: mentions,
         imageUploader: {
           upload: (file: File) => onImageUpload(file),
         },
       }),
-      [uuid]
+      [uuid, mentions, externalModules]
     );
 
     useEffect(() => {
@@ -103,7 +126,7 @@ export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
     }, []);
 
     return (
-      <div className={cx(classes.root, className)} style={mergedStyles} {...rest}>
+      <Box className={cx(classes.root, className)} {...others}>
         <Toolbar
           controls={controls}
           labels={labels}
@@ -112,6 +135,7 @@ export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
           classNames={classNames}
           styles={styles}
           id={uuid}
+          className={classes.toolbar}
         />
 
         <Editor
@@ -120,8 +144,10 @@ export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
           value={value}
           onChange={onChange}
           ref={mergeRefs(editorRef, ref)}
+          placeholder={placeholder}
+          readOnly={readOnly}
         />
-      </div>
+      </Box>
     );
   }
 );

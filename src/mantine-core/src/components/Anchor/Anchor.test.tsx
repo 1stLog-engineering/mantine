@@ -1,36 +1,27 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import {
-  itSupportsClassName,
-  itRendersChildren,
-  itSupportsOthers,
-  itSupportsStyle,
-  itSupportsRef,
-  itSupportsMargins,
-  itIsPolymorphic,
-} from '@mantine/tests';
-import { Anchor } from './Anchor';
+import { render } from '@testing-library/react';
+import { itRendersChildren, itIsPolymorphic, itSupportsSystemProps } from '@mantine/tests';
+import { Anchor, AnchorProps } from './Anchor';
+
+const defaultProps: AnchorProps<'a'> = {};
 
 describe('@mantine/core/Anchor', () => {
-  itSupportsClassName(Anchor, {});
-  itRendersChildren(Anchor, {});
-  itSupportsOthers(Anchor, {});
-  itSupportsStyle(Anchor, {});
-  itSupportsMargins(Anchor, {});
-  itIsPolymorphic(Anchor, {}, { dive: true });
-  itSupportsRef(Anchor, {}, HTMLAnchorElement);
-
-  it('adds type="button" attribute if component prop is button', () => {
-    const link = shallow(<Anchor component="a" />);
-    const button = shallow(<Anchor component="button" />);
-    const buttonReset = shallow(<Anchor component="button" type="reset" />);
-
-    expect(link.render().attr('type')).toBe(undefined);
-    expect(button.render().attr('type')).toBe('button');
-    expect(buttonReset.render().attr('type')).toBe('reset');
+  itRendersChildren(Anchor, defaultProps);
+  itIsPolymorphic(Anchor, defaultProps);
+  itSupportsSystemProps({
+    component: Anchor,
+    props: defaultProps,
+    displayName: '@mantine/core/Anchor',
+    refType: HTMLAnchorElement,
   });
 
-  it('has correct displayName', () => {
-    expect(Anchor.displayName).toEqual('@mantine/core/Anchor');
+  it('adds type="button" attribute if component prop is button', () => {
+    const { container: link } = render(<Anchor component="a" />);
+    const { container: button } = render(<Anchor component="button" />);
+    const { container: buttonReset } = render(<Anchor component="button" type="reset" />);
+
+    expect(link.querySelector('a').getAttribute('type')).toBe(null);
+    expect(button.querySelector('button').getAttribute('type')).toBe('button');
+    expect(buttonReset.querySelector('button').getAttribute('type')).toBe('reset');
   });
 });

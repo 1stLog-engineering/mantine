@@ -13,7 +13,7 @@ docs: 'core/MultiSelect.mdx'
 styles: ['MultiSelect']
 ---
 
-import { MultiSelectDemos } from '@demos/core';
+import { MultiSelectDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -191,13 +191,20 @@ Based on this data shape you can create custom `filter` function and `itemCompon
 
 ## Custom label component
 
-Apart from `itemComponent` you can customize appearance of label by providing `labelComponent`:
+Apart from `itemComponent` you can customize appearance of label by providing `valueComponent`:
 
 <Demo data={MultiSelectDemos.countries} />
 
 ## Max selected values
 
 <Demo data={MultiSelectDemos.maxSelectedValues} />
+
+## Dropdown position
+
+By default, dropdown is placed below the input and when there is not enough space, it flips to be above the input.
+To change this behavior, set `dropdownPosition` prop:
+
+<Demo data={MultiSelectDemos.flip} />
 
 ## Performance
 

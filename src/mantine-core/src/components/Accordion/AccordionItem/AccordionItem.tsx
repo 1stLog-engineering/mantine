@@ -22,12 +22,7 @@ export interface PublicAccordionItemProps
   controlRef?: React.ForwardedRef<HTMLButtonElement>;
 }
 
-export interface AccordionItemType {
-  type: any;
-  props: PublicAccordionItemProps;
-}
-
-interface AccordionItemProps extends PublicAccordionItemProps {
+export interface AccordionItemProps extends PublicAccordionItemProps {
   opened?: boolean;
   onToggle?(): void;
   transitionDuration?: number;
@@ -35,6 +30,7 @@ interface AccordionItemProps extends PublicAccordionItemProps {
   onControlKeyDown?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
   offsetIcon?: boolean;
   iconSize?: number;
+  order?: 2 | 3 | 4 | 5 | 6;
 }
 
 export function AccordionItem({
@@ -51,6 +47,7 @@ export function AccordionItem({
   offsetIcon = true,
   iconSize = 24,
   iconPosition = 'left',
+  order = 3,
   id,
   controlRef,
   onControlKeyDown,
@@ -63,9 +60,12 @@ export function AccordionItem({
     { classNames, styles, name: 'Accordion' }
   );
 
+  const cappedOrder = Math.min(6, Math.max(2, order)) as 2 | 3 | 4 | 5 | 6;
+  const Heading = `h${cappedOrder}` as const;
+
   return (
     <Box className={cx(classes.item, { [classes.itemOpened]: opened }, className)} {...others}>
-      <h3 style={{ margin: 0, fontWeight: 'normal' }}>
+      <Heading className={classes.itemTitle}>
         <UnstyledButton
           className={classes.control}
           onClick={onToggle}
@@ -77,10 +77,9 @@ export function AccordionItem({
           onKeyDown={onControlKeyDown}
         >
           <Center className={classes.icon}>{icon}</Center>
-
           <div className={classes.label}>{label}</div>
         </UnstyledButton>
-      </h3>
+      </Heading>
 
       <Collapse in={opened} transitionDuration={duration}>
         <div className={classes.content} role="region" id={`${id}-body`} aria-labelledby={id}>

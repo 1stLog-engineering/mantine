@@ -36,7 +36,7 @@ export function useMantineEmotionOptions(): EmotionCacheOptions {
   return useContext(MantineThemeContext)?.emotionOptions || { key: 'mantine', prepend: true };
 }
 
-interface MantineProviderProps {
+export interface MantineProviderProps {
   theme?: MantineThemeOverride;
   styles?: ProviderStyles;
   emotionOptions?: EmotionCacheOptions;
@@ -59,7 +59,7 @@ function GlobalStyles() {
           backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
           color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
           lineHeight: theme.lineHeight,
-          fontSizes: theme.fontSizes.md,
+          fontSize: theme.fontSizes.md,
         } as any,
       }}
     />

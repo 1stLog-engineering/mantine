@@ -6,8 +6,9 @@ import {
   MantineSize,
   MantineColor,
   ClassNames,
-  useExtractedMargins,
+  extractMargins,
 } from '@mantine/styles';
+import { Box } from '../../Box';
 import { CheckboxIcon } from '../../Checkbox';
 import useStyles from './Chip.styles';
 
@@ -49,8 +50,8 @@ export interface ChipProps
   /** Static selector base */
   __staticSelector?: string;
 
-  /** Input value */
-  value: string;
+  /** Props spread to wrapper element */
+  wrapperProps?: { [key: string]: any };
 }
 
 export const Chip = forwardRef<HTMLInputElement, ChipProps>(
@@ -73,20 +74,22 @@ export const Chip = forwardRef<HTMLInputElement, ChipProps>(
       defaultChecked,
       onChange,
       sx,
+      wrapperProps,
       ...others
     }: ChipProps,
     ref
   ) => {
     const uuid = useUuid(id);
+    const { margins, rest } = extractMargins(others);
     const { classes, cx, theme } = useStyles(
       { radius, size, color },
-      { classNames, styles, sx, name: __staticSelector }
+      { classNames, styles, name: __staticSelector }
     );
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
+
     const [value, setValue] = useUncontrolled({
       value: checked,
       defaultValue: defaultChecked,
-      finalValue: true,
+      finalValue: false,
       onChange,
       rule: (val) => typeof val === 'boolean',
     });
@@ -94,7 +97,13 @@ export const Chip = forwardRef<HTMLInputElement, ChipProps>(
     const defaultVariant = theme.colorScheme === 'dark' ? 'filled' : 'outline';
 
     return (
-      <div className={cx(classes.root, className)} style={mergedStyles}>
+      <Box
+        className={cx(classes.root, className)}
+        style={style}
+        sx={sx}
+        {...margins}
+        {...wrapperProps}
+      >
         <input
           type={type}
           className={classes.input}
@@ -106,12 +115,12 @@ export const Chip = forwardRef<HTMLInputElement, ChipProps>(
           {...rest}
         />
         <label
+          htmlFor={uuid}
           className={cx(
             classes.label,
             { [classes.checked]: value, [classes.disabled]: disabled },
             classes[variant || defaultVariant]
           )}
-          htmlFor={uuid}
         >
           {value && (
             <span className={classes.iconWrapper}>
@@ -120,7 +129,7 @@ export const Chip = forwardRef<HTMLInputElement, ChipProps>(
           )}
           {children}
         </label>
-      </div>
+      </Box>
     );
   }
 );

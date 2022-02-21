@@ -13,13 +13,20 @@ docs: 'core/Stepper.mdx'
 styles: ['Stepper']
 ---
 
-import { StepperDemos } from '@demos/core';
+import { StepperDemos } from '@mantine/demos';
 
 ## Usage
 
 <Demo data={StepperDemos.usage} />
 
-## Color and size
+## Allow step select
+
+To disable step selection set `allowStepSelect` prop on `Stepper.Step` component.
+It can be used to prevent user from reaching next steps:
+
+<Demo data={StepperDemos.allowStepSelect} />
+
+## Color, radius and size
 
 You can use any color from `theme.colors`, by default Stepper will use `theme.primaryColor`:
 

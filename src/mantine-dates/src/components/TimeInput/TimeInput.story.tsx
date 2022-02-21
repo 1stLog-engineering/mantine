@@ -13,19 +13,14 @@ function Controlled() {
   return (
     <>
       <TimeInput value={value} onChange={onChange} label="Controlled" />
-      <button type="button" onClick={() => onChange(dayjs(new Date()).add(15, 'minutes').toDate())}>
+      <button type="button" onClick={() => onChange(dayjs(new Date()).add(30, 'minutes').toDate())}>
         set date
       </button>
     </>
   );
 }
 
-storiesOf('@mantine/dates/TimeInput', module)
-  .add('General usage', () => (
-    <div style={{ width: 400, padding: 40 }}>
-      <TimeInput label="Time input" disabled />
-    </div>
-  ))
+storiesOf('@mantine/dates/TimeInput/stories', module)
   .add('Controlled', () => (
     <div style={{ width: 400, padding: 40 }}>
       <Controlled />

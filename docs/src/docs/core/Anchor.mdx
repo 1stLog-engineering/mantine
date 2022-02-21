@@ -8,12 +8,12 @@ category: 'navigation'
 description: 'Display links with theme styles'
 props: ['Anchor']
 import: "import { Anchor } from '@mantine/core';"
-source: 'mantine-core/src/components/Text/Text.tsx'
+source: 'mantine-core/src/components/Anchor/Anchor.tsx'
 docs: 'core/Anchor.mdx'
 styles: ['Anchor', 'single-node']
 ---
 
-import { AnchorDemos } from '@demos/core';
+import { AnchorDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -24,7 +24,7 @@ It supports the same props as Text component.
 
 ## Usage with react-router and other libraries
 
-You can use Anchor with react-router Link component and other similar components by setting `component` prop:
+To use Anchor with react-router Link component and other similar components set `component` prop:
 
 ```tsx
 import { Link } from 'react-router-dom';

@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
+import React, { useEffect } from 'react';
 import { useScrollLock, useFocusTrap, useFocusReturn, useUuid } from '@mantine/hooks';
 import {
   DefaultProps,
@@ -8,15 +9,16 @@ import {
   MantineMargin,
   getDefaultZIndex,
 } from '@mantine/styles';
-import { CloseButton } from '../ActionIcon/CloseButton/CloseButton';
-import { Text } from '../Text/Text';
-import { Paper } from '../Paper/Paper';
-import { Overlay } from '../Overlay/Overlay';
-import { Portal } from '../Portal/Portal';
+import { CloseButton } from '../ActionIcon';
+import { Text } from '../Text';
+import { Paper } from '../Paper';
+import { Overlay } from '../Overlay';
+import { Portal } from '../Portal';
+import { Box } from '../Box';
 import { GroupedTransition, MantineTransition } from '../Transition';
 import useStyles from './Modal.styles';
 
-export type ModalStylesNames = Exclude<ClassNames<typeof useStyles>, 'clickOutsideOverlay'>;
+export type ModalStylesNames = ClassNames<typeof useStyles>;
 
 export interface ModalProps
   extends Omit<DefaultProps<ModalStylesNames>, MantineMargin>,
@@ -45,6 +47,9 @@ export interface ModalProps
   /** Overlay below modal color, defaults to theme.black in light theme and to theme.colors.dark[9] in dark theme */
   overlayColor?: string;
 
+  /** Modal radius */
+  radius?: MantineNumberSize;
+
   /** Modal body width */
   size?: string | number;
 
@@ -72,8 +77,17 @@ export interface ModalProps
   /** Should modal be closed when outside click was registered? */
   closeOnClickOutside?: boolean;
 
+  /** Should modal be closed when escape is pressed? */
+  closeOnEscape?: boolean;
+
+  /** Disables focus trap */
+  noFocusTrap?: boolean;
+
   /** Controls if modal should be centered */
   centered?: boolean;
+
+  /** Target element or selector where modal portal should be rendered */
+  target?: HTMLElement | string;
 }
 
 export function MantineModal({
@@ -92,12 +106,15 @@ export function MantineModal({
   transition = 'pop',
   padding = 'lg',
   shadow = 'lg',
+  radius = 'sm',
   id,
   classNames,
   styles,
-  sx,
   closeOnClickOutside = true,
+  noFocusTrap = false,
+  closeOnEscape = true,
   centered = false,
+  target,
   ...others
 }: ModalProps) {
   const baseId = useUuid(id);
@@ -105,9 +122,9 @@ export function MantineModal({
   const bodyId = `${baseId}-body`;
   const { classes, cx, theme } = useStyles(
     { size, overflow, centered },
-    { sx, classNames, styles, name: 'Modal' }
+    { classNames, styles, name: 'Modal' }
   );
-  const focusTrapRef = useFocusTrap(opened);
+  const focusTrapRef = useFocusTrap(!noFocusTrap && opened);
   const _overlayOpacity =
     typeof overlayOpacity === 'number'
       ? overlayOpacity
@@ -116,6 +133,22 @@ export function MantineModal({
       : 0.75;
 
   const [, lockScroll] = useScrollLock();
+
+  const closeOnEscapePress = (event: KeyboardEvent) => {
+    if (noFocusTrap && event.code === 'Escape' && closeOnEscape) {
+      onClose();
+    }
+  };
+
+  // eslint-disable-next-line consistent-return
+  useEffect(() => {
+    // onKeyDownCapture event will not fire when focus trap is not active
+    if (noFocusTrap) {
+      window.addEventListener('keydown', closeOnEscapePress);
+      return () => window.removeEventListener('keydown', closeOnEscapePress);
+    }
+  }, [noFocusTrap]);
+
   useFocusReturn({ opened, transitionDuration });
 
   return (
@@ -125,29 +158,31 @@ export function MantineModal({
       mounted={opened}
       transitions={{
         modal: { duration: transitionDuration, transition },
-        overlay: { duration: transitionDuration / 2, transition: 'fade', timingFunction: 'ease' },
+        overlay: {
+          duration: transitionDuration / 2,
+          transition: 'fade',
+          timingFunction: 'ease',
+        },
       }}
     >
       {(transitionStyles) => (
-        <div className={cx(classes.root, className)} {...others}>
-          {closeOnClickOutside && (
-            // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
-            <div onClick={onClose} className={classes.clickOutsideOverlay} style={{ zIndex: 2 }} />
-          )}
-
+        <Box className={cx(classes.root, className)} {...others}>
           <div
             className={classes.inner}
+            onMouseDown={() => closeOnClickOutside && onClose()}
             onKeyDownCapture={(event) => {
               const shouldTrigger =
                 (event.target as any)?.getAttribute('data-mantine-stop-propagation') !== 'true';
-              shouldTrigger && event.nativeEvent.code === 'Escape' && onClose();
+              shouldTrigger && event.nativeEvent.code === 'Escape' && closeOnEscape && onClose();
             }}
             ref={focusTrapRef}
           >
             <Paper<'div'>
+              onMouseDown={(event) => event.stopPropagation()}
               className={classes.modal}
               shadow={shadow}
               padding={padding}
+              radius={radius}
               role="dialog"
               aria-labelledby={titleId}
               aria-describedby={bodyId}
@@ -166,7 +201,12 @@ export function MantineModal({
                   </Text>
 
                   {!hideCloseButton && (
-                    <CloseButton iconSize={16} onClick={onClose} aria-label={closeButtonLabel} />
+                    <CloseButton
+                      iconSize={16}
+                      onClick={onClose}
+                      aria-label={closeButtonLabel}
+                      className={classes.close}
+                    />
                   )}
                 </div>
               )}
@@ -179,6 +219,7 @@ export function MantineModal({
 
           <div style={transitionStyles.overlay}>
             <Overlay
+              className={classes.overlay}
               zIndex={0}
               color={
                 overlayColor || (theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.black)
@@ -186,7 +227,7 @@ export function MantineModal({
               opacity={_overlayOpacity}
             />
           </div>
-        </div>
+        </Box>
       )}
     </GroupedTransition>
   );
@@ -194,10 +235,11 @@ export function MantineModal({
 
 export function Modal({
   zIndex = getDefaultZIndex('modal'),
+  target,
   ...props
 }: React.ComponentPropsWithoutRef<typeof MantineModal>) {
   return (
-    <Portal zIndex={zIndex}>
+    <Portal zIndex={zIndex} target={target}>
       <MantineModal {...props} />
     </Portal>
   );

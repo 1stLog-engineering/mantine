@@ -11,22 +11,19 @@ import {
   MantineNumberSize,
   MantineShadow,
   ClassNames,
-  useExtractedMargins,
   getDefaultZIndex,
+  ForwardRefWithStaticComponents,
 } from '@mantine/styles';
-import { Divider } from '../Divider/Divider';
-import { Paper } from '../Paper/Paper';
-import { Text } from '../Text/Text';
-import { ActionIcon } from '../ActionIcon/ActionIcon';
-import { Popper, SharedPopperProps } from '../Popper/Popper';
+import { filterChildrenByType } from '../../utils';
+import { Box } from '../Box';
+import { Divider } from '../Divider';
+import { Paper } from '../Paper';
+import { Text } from '../Text';
+import { ActionIcon } from '../ActionIcon';
+import { Popper, SharedPopperProps } from '../Popper';
 import { MenuIcon } from './MenuIcon';
-import {
-  MenuItem,
-  MenuItemComponent,
-  MenuItemType,
-  MenuItemStylesNames,
-} from './MenuItem/MenuItem';
-import { MenuLabel, MenuLabelProps } from './MenuLabel/MenuLabel';
+import { MenuItem, MenuItemType, MenuItemStylesNames } from './MenuItem/MenuItem';
+import { MenuLabel } from './MenuLabel/MenuLabel';
 import useStyles from './Menu.styles';
 
 export type MenuStylesNames = ClassNames<typeof useStyles> | MenuItemStylesNames;
@@ -54,7 +51,7 @@ export interface MenuProps
   menuButtonLabel?: string;
 
   /** Predefined menu width or number for width in px */
-  size?: MantineNumberSize;
+  size?: MantineNumberSize | 'auto';
 
   /** Predefined shadow from theme or box-shadow value */
   shadow?: MantineShadow;
@@ -88,6 +85,9 @@ export interface MenuProps
 
   /** Should focus be trapped when menu is opened */
   trapFocus?: boolean;
+
+  /** Events that should trigger outside clicks */
+  clickOutsideEvents?: string[];
 }
 
 const defaultControl = (
@@ -96,11 +96,10 @@ const defaultControl = (
   </ActionIcon>
 );
 
-type MenuComponent = {
-  displayName?: string;
-  Item: MenuItemComponent;
-  Label: React.FC<MenuLabelProps>;
-} & ((props: MenuProps) => React.ReactElement);
+type MenuComponent = ForwardRefWithStaticComponents<
+  MenuProps,
+  { Item: typeof MenuItem; Label: typeof MenuLabel }
+>;
 
 function getNextItem(active: number, items: MenuItemType[]) {
   for (let i = active + 1; i < items.length; i += 1) {
@@ -144,7 +143,6 @@ export const Menu: MenuComponent = forwardRef<HTMLButtonElement, MenuProps>(
       onClose,
       onOpen,
       opened,
-      style,
       menuId,
       closeOnItemClick = true,
       transitionDuration = 250,
@@ -160,7 +158,7 @@ export const Menu: MenuComponent = forwardRef<HTMLButtonElement, MenuProps>(
       controlRefProp = 'ref',
       trigger = 'click',
       radius = 'sm',
-      delay = 0,
+      delay = 100,
       zIndex = getDefaultZIndex('popover'),
       withinPortal = true,
       trapFocus = true,
@@ -172,19 +170,20 @@ export const Menu: MenuComponent = forwardRef<HTMLButtonElement, MenuProps>(
       onChange,
       className,
       sx,
+      clickOutsideEvents = ['click', 'touchstart'],
       ...others
     }: MenuProps,
     ref
   ) => {
     const [hovered, setHovered] = useState(-1);
     const buttonsRefs = useRef<Record<string, HTMLButtonElement>>({});
-    const { classes, cx, theme } = useStyles({ size }, { sx, classNames, styles, name: 'Menu' });
+    const { classes, cx, theme } = useStyles({ size }, { classNames, styles, name: 'Menu' });
     const delayTimeout = useRef<number>();
     const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>(null);
     const [wrapperElement, setWrapperElement] = useState<HTMLDivElement>(null);
     const [dropdownElement, setDropdownElement] = useState<HTMLDivElement>(null);
+    const items = filterChildrenByType(children, [MenuItem, MenuLabel, Divider]);
     const uuid = useUuid(menuId);
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
 
     const focusReference = () => window.setTimeout(() => referenceElement?.focus(), 0);
 
@@ -215,7 +214,10 @@ export const Menu: MenuComponent = forwardRef<HTMLButtonElement, MenuProps>(
 
     useWindowEvent('scroll', () => closeOnScroll && handleClose());
 
-    useClickOutside(() => _opened && handleClose(), null, [dropdownElement, wrapperElement]);
+    useClickOutside(() => _opened && handleClose(), clickOutsideEvents, [
+      dropdownElement,
+      wrapperElement,
+    ]);
 
     const toggleMenu = () => {
       _opened ? handleClose() : handleOpen();
@@ -242,11 +244,6 @@ export const Menu: MenuComponent = forwardRef<HTMLButtonElement, MenuProps>(
       typeof onMouseEnter === 'function' && onMouseEnter(event);
       window.clearTimeout(delayTimeout.current);
     };
-
-    const items = React.Children.toArray(children).filter(
-      (item: MenuItemType) =>
-        item.type === MenuItem || item.type === Divider || item.type === MenuLabel
-    ) as MenuItemType[];
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
       if (_opened) {
@@ -277,6 +274,10 @@ export const Menu: MenuComponent = forwardRef<HTMLButtonElement, MenuProps>(
 
     const menuControl = cloneElement(control, {
       ...controlEventHandlers,
+      onClick: (event: React.MouseEvent<any>) => {
+        controlEventHandlers.onClick();
+        typeof control.props.onClick === 'function' && control.props.onClick(event);
+      },
       role: 'button',
       'aria-haspopup': 'menu',
       'aria-expanded': _opened,
@@ -336,13 +337,13 @@ export const Menu: MenuComponent = forwardRef<HTMLButtonElement, MenuProps>(
     });
 
     return (
-      <div
+      <Box
         ref={setWrapperElement}
-        style={mergedStyles}
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
         className={cx(classes.root, className)}
-        {...rest}
+        sx={sx}
+        {...others}
       >
         {menuControl}
 
@@ -369,12 +370,13 @@ export const Menu: MenuComponent = forwardRef<HTMLButtonElement, MenuProps>(
             radius={radius}
             onMouseLeave={() => setHovered(-1)}
             ref={setDropdownElement}
+            id={uuid}
             {...others}
           >
             {content}
           </Paper>
         </Popper>
-      </div>
+      </Box>
     );
   }
 ) as any;

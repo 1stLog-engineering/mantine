@@ -4,10 +4,10 @@ import {
   MantineNumberSize,
   MantineColor,
   ClassNames,
-  useExtractedMargins,
   PolymorphicComponentProps,
   PolymorphicRef,
 } from '@mantine/styles';
+import { Box } from '../Box';
 import { AvatarPlaceholderIcon } from './AvatarPlaceholderIcon';
 import useStyles from './Avatar.styles';
 
@@ -15,7 +15,7 @@ export type AvatarStylesNames = ClassNames<typeof useStyles>;
 
 interface _AvatarProps extends DefaultProps<AvatarStylesNames> {
   /** Image url */
-  src?: string;
+  src?: string | null;
 
   /** Image alt text or title for placeholder variant */
   alt?: string;
@@ -28,20 +28,24 @@ interface _AvatarProps extends DefaultProps<AvatarStylesNames> {
 
   /** Color from theme.colors used for letter and icon placeholders */
   color?: MantineColor;
+
+  /** `img` element attributes */
+  imageProps?: React.ComponentPropsWithoutRef<'img'>;
 }
 
-export type AvatarProps<C extends React.ElementType> = PolymorphicComponentProps<C, _AvatarProps>;
+export type AvatarProps<C> = C extends React.ElementType
+  ? PolymorphicComponentProps<C, _AvatarProps>
+  : never;
 
-type AvatarComponent = <C extends React.ElementType = 'div'>(
-  props: AvatarProps<C>
-) => React.ReactElement;
+type AvatarComponent = (<C = 'div'>(props: AvatarProps<C>) => React.ReactElement) & {
+  displayName?: string;
+};
 
-export const Avatar: AvatarComponent & { displayName?: string } = forwardRef(
+export const Avatar: AvatarComponent = forwardRef(
   <C extends React.ElementType = 'div'>(
     {
       component,
       className,
-      style,
       size = 'md',
       src,
       alt,
@@ -50,33 +54,42 @@ export const Avatar: AvatarComponent & { displayName?: string } = forwardRef(
       color = 'gray',
       classNames,
       styles,
-      sx,
+      imageProps,
       ...others
     }: AvatarProps<C>,
     ref: PolymorphicRef<C>
   ) => {
     const { classes, cx } = useStyles(
       { color, radius, size },
-      { classNames, styles, sx, name: 'Avatar' }
+      { classNames, styles, name: 'Avatar' }
     );
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
     const [error, setError] = useState(!src);
-    const Element = component || 'div';
 
     useEffect(() => {
       !src ? setError(true) : setError(false);
     }, [src]);
 
     return (
-      <Element {...rest} className={cx(classes.root, className)} style={mergedStyles} ref={ref}>
+      <Box<any>
+        component={component || 'div'}
+        className={cx(classes.root, className)}
+        ref={ref}
+        {...others}
+      >
         {error ? (
           <div className={classes.placeholder} title={alt}>
             {children || <AvatarPlaceholderIcon className={classes.placeholderIcon} />}
           </div>
         ) : (
-          <img className={classes.image} src={src} alt={alt} onError={() => setError(true)} />
+          <img
+            {...imageProps}
+            className={classes.image}
+            src={src}
+            alt={alt}
+            onError={() => setError(true)}
+          />
         )}
-      </Element>
+      </Box>
     );
   }
 );

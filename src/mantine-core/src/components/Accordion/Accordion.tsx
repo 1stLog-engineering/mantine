@@ -1,11 +1,11 @@
 import React, { forwardRef } from 'react';
-import { DefaultProps } from '@mantine/styles';
+import { DefaultProps, ForwardRefWithStaticComponents } from '@mantine/styles';
 import { useUuid, mergeRefs } from '@mantine/hooks';
 import { Box } from '../Box';
+import { filterChildrenByType } from '../../utils';
 import {
   AccordionItem,
   AccordionItemStylesNames,
-  AccordionItemType,
   AccordionIconPosition,
 } from './AccordionItem/AccordionItem';
 import { useAccordionState, AccordionState } from './use-accordion-state/use-accordion-state';
@@ -52,12 +52,15 @@ export interface AccordionProps
 
   /** Icon width in px */
   iconSize?: number;
+
+  /** Heading level used for items */
+  order?: 2 | 3 | 4 | 5 | 6;
 }
 
-type AccordionComponent = ((props: AccordionProps) => React.ReactElement) & {
-  displayName: string;
-  Item: typeof AccordionItem;
-};
+type AccordionComponent = ForwardRefWithStaticComponents<
+  AccordionProps,
+  { Item: typeof AccordionItem }
+>;
 
 export const Accordion: AccordionComponent = forwardRef<HTMLDivElement, AccordionProps>(
   (
@@ -73,6 +76,7 @@ export const Accordion: AccordionComponent = forwardRef<HTMLDivElement, Accordio
       iconPosition = 'left',
       offsetIcon = true,
       iconSize = 24,
+      order = 3,
       icon,
       classNames,
       styles,
@@ -82,12 +86,9 @@ export const Accordion: AccordionComponent = forwardRef<HTMLDivElement, Accordio
     ref
   ) => {
     const uuid = useUuid(id);
-    const items = React.Children.toArray(children).filter(
-      (item: AccordionItemType) => item.type === AccordionItem
-    ) as AccordionItemType[];
+    const items = filterChildrenByType(children, AccordionItem);
 
     const { handleItemKeydown, assignControlRef } = useAccordionFocus(items.length);
-
     const [value, handlers] = useAccordionState({
       multiple,
       total: items.length,
@@ -114,6 +115,7 @@ export const Accordion: AccordionComponent = forwardRef<HTMLDivElement, Accordio
         controlRef={mergeRefs(assignControlRef(index), item.props?.controlRef)}
         offsetIcon={offsetIcon}
         iconSize={iconSize}
+        order={order}
       />
     ));
 

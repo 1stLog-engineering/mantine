@@ -1,6 +1,7 @@
 import React, { useState, forwardRef } from 'react';
 import * as RadixScrollArea from '@radix-ui/react-scroll-area';
-import { DefaultProps, useExtractedMargins, ClassNames } from '@mantine/styles';
+import { DefaultProps, ClassNames, useMantineTheme } from '@mantine/styles';
+import { Box } from '../Box';
 import useStyles from './ScrollArea.styles';
 
 export type ScrollAreaStylesNames = ClassNames<typeof useStyles>;
@@ -25,66 +26,80 @@ export interface ScrollAreaProps
 
   /** Get viewport ref */
   viewportRef?: React.ForwardedRef<HTMLDivElement>;
+
+  /** Subscribe to scroll position changes */
+  onScrollPositionChange?(position: { x: number; y: number }): void;
 }
 
 export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
   (
     {
       children,
-      style,
       className,
       classNames,
       styles,
-      sx,
       scrollbarSize = 12,
       scrollHideDelay = 1000,
       type = 'hover',
-      dir = 'ltr',
+      dir,
       offsetScrollbars = false,
       viewportRef,
+      onScrollPositionChange,
       ...others
     }: ScrollAreaProps,
     ref
   ) => {
     const [scrollbarHovered, setScrollbarHovered] = useState(false);
-    const { mergedStyles, rest } = useExtractedMargins({ style, others });
+    const theme = useMantineTheme();
     const { classes, cx } = useStyles(
-      { scrollbarSize, offsetScrollbars, dir, scrollbarHovered },
-      { name: 'ScrollArea', classNames, styles, sx }
+      { scrollbarSize, offsetScrollbars, scrollbarHovered },
+      { name: 'ScrollArea', classNames, styles }
     );
 
     return (
       <RadixScrollArea.Root
         type={type}
         scrollHideDelay={scrollHideDelay}
-        dir={dir}
-        className={cx(classes.root, className)}
-        style={mergedStyles}
+        dir={dir || theme.dir}
         ref={ref}
-        {...rest}
+        asChild
       >
-        <RadixScrollArea.Viewport className={classes.viewport} ref={viewportRef}>
-          {children}
-        </RadixScrollArea.Viewport>
-        <RadixScrollArea.Scrollbar
-          orientation="horizontal"
-          className={classes.scrollbar}
-          forceMount
-          onMouseEnter={() => setScrollbarHovered(true)}
-          onMouseLeave={() => setScrollbarHovered(false)}
-        >
-          <RadixScrollArea.Thumb className={classes.thumb} />
-        </RadixScrollArea.Scrollbar>
-        <RadixScrollArea.Scrollbar
-          orientation="vertical"
-          className={classes.scrollbar}
-          forceMount
-          onMouseEnter={() => setScrollbarHovered(true)}
-          onMouseLeave={() => setScrollbarHovered(false)}
-        >
-          <RadixScrollArea.Thumb className={classes.thumb} />
-        </RadixScrollArea.Scrollbar>
-        <RadixScrollArea.Corner className={classes.corner} />
+        <Box className={cx(classes.root, className)} {...others}>
+          <RadixScrollArea.Viewport
+            className={classes.viewport}
+            ref={viewportRef}
+            onScroll={
+              typeof onScrollPositionChange === 'function'
+                ? ({ currentTarget }) =>
+                    onScrollPositionChange({
+                      x: currentTarget.scrollLeft,
+                      y: currentTarget.scrollTop,
+                    })
+                : undefined
+            }
+          >
+            {children}
+          </RadixScrollArea.Viewport>
+          <RadixScrollArea.Scrollbar
+            orientation="horizontal"
+            className={classes.scrollbar}
+            forceMount
+            onMouseEnter={() => setScrollbarHovered(true)}
+            onMouseLeave={() => setScrollbarHovered(false)}
+          >
+            <RadixScrollArea.Thumb className={classes.thumb} />
+          </RadixScrollArea.Scrollbar>
+          <RadixScrollArea.Scrollbar
+            orientation="vertical"
+            className={classes.scrollbar}
+            forceMount
+            onMouseEnter={() => setScrollbarHovered(true)}
+            onMouseLeave={() => setScrollbarHovered(false)}
+          >
+            <RadixScrollArea.Thumb className={classes.thumb} />
+          </RadixScrollArea.Scrollbar>
+          <RadixScrollArea.Corner className={classes.corner} />
+        </Box>
       </RadixScrollArea.Root>
     );
   }

@@ -1,108 +1,70 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
-  itSupportsClassName,
-  itSupportsStyle,
-  itSupportsRef,
-  itSupportsStylesApi,
   checkAccessibility,
-  itSupportsMargins,
-  getInputStylesApiKeys,
+  itSupportsSystemProps,
+  itSupportsInputRightSection,
+  itSupportsInputIcon,
+  itConnectsLabelAndInput,
+  itSupportsFocusEvents,
 } from '@mantine/tests';
-import { Input, InputWrapper } from '@mantine/core';
-import { TimeField } from './TimeField/TimeField';
-import { TimeInput } from './TimeInput';
-import { TimeInput as TimeInputStylesApi } from './styles.api';
+import { TimeInput, TimeInputProps } from './TimeInput';
+
+const defaultProps: TimeInputProps = {
+  label: 'test-label',
+  hoursLabel: 'test-hours',
+  minutesLabel: 'test-minutes',
+  secondsLabel: 'test-seconds',
+};
 
 describe('@mantine/dates/TimeInput', () => {
-  itSupportsClassName(TimeInput, {});
-  itSupportsStyle(TimeInput, {});
-  itSupportsMargins(TimeInput, {});
-  itSupportsRef(TimeInput, {}, HTMLInputElement);
+  itSupportsInputRightSection(TimeInput, defaultProps);
+  itSupportsInputIcon(TimeInput, defaultProps);
+  itConnectsLabelAndInput(TimeInput, defaultProps);
+  itSupportsFocusEvents(TimeInput, defaultProps, 'input');
+  itSupportsSystemProps({
+    component: TimeInput,
+    props: defaultProps,
+    displayName: '@mantine/dates/TimeInput',
+    refType: HTMLInputElement,
+    excludeOthers: true,
+  });
 
   checkAccessibility([
-    mount(
-      <TimeInput
-        label="test-label"
-        withSeconds
-        hoursLabel="Hours"
-        minutesLabel="Minutes"
-        secondsLabel="Seconds"
-      />
-    ),
-    mount(
-      <TimeInput label="test-label" withSeconds={false} hoursLabel="Hours" minutesLabel="Minutes" />
-    ),
+    <TimeInput {...defaultProps} />,
+    <TimeInput {...defaultProps} withSeconds />,
   ]);
 
-  itSupportsStylesApi(
-    TimeInput,
-    {
-      icon: '$',
-      rightSection: '$',
-      label: 'test-label',
-      error: 'test-error',
-      description: 'test-description',
-      required: true,
-      disabled: true,
-    },
-    getInputStylesApiKeys(Object.keys(TimeInputStylesApi).filter((key) => key !== 'invalid')),
-    'TimeInput'
-  );
-
-  it('passes correct __staticSelector to Image and InputWrapper components', () => {
-    const element = shallow(<TimeInput />);
-    expect(element.find(Input).prop('__staticSelector')).toBe('TimeInput');
-    expect(element.find(InputWrapper).prop('__staticSelector')).toBe('TimeInput');
-  });
-
-  it('passes required, id, label, error and description props to InputWrapper component', () => {
-    const element = shallow(
-      <TimeInput
-        id="test-id"
-        required
-        label="test-label"
-        error="test-error"
-        description="test-description"
-      />
-    );
-
-    expect(element.find(InputWrapper).prop('id')).toBe('test-id');
-    expect(element.find(InputWrapper).prop('required')).toBe(true);
-    expect(element.find(InputWrapper).prop('label')).toBe('test-label');
-    expect(element.find(InputWrapper).prop('error')).toBe('test-error');
-    expect(element.find(InputWrapper).prop('description')).toBe('test-description');
-  });
-
-  it('passes required, type, invalid, icon and radius props to Input component', () => {
-    const element = shallow(<TimeInput required error="test-error" icon="$" radius="sm" />);
-
-    expect(element.find(Input).prop('required')).toBe(true);
-    expect(element.find(Input).prop('invalid')).toBe(true);
-    expect(element.find(Input).prop('icon')).toBe('$');
-    expect(element.find(Input).prop('radius')).toBe('sm');
-  });
-
-  it('sets given id to first TimeField', () => {
-    const element = shallow(<TimeInput id="test-id" />);
-    expect(element.find(TimeField).at(0).prop('id')).toBe('test-id');
-  });
-
-  it('renders hidden input with given name', () => {
-    const value = new Date();
-    const element = shallow(<TimeInput value={value} name="test-name" />);
-    expect(element.find('input[type="hidden"]').prop('value')).toBe(value.toISOString());
+  it('renders input with given name', () => {
+    const value = new Date(2021, 11, 1);
+    const { container } = render(<TimeInput value={value} name="test-name" />);
+    expect(container.querySelector('input[name="test-name"]')).toBeInTheDocument();
   });
 
   it('renders correct amount of TimeField components based on withSeconds prop', () => {
-    const withSeconds = shallow(<TimeInput withSeconds />);
-    const withoutSeconds = shallow(<TimeInput withSeconds={false} />);
-
-    expect(withSeconds.find(TimeField)).toHaveLength(3);
-    expect(withoutSeconds.find(TimeField)).toHaveLength(2);
+    const view = render(<TimeInput {...defaultProps} withSeconds />);
+    expect(screen.getByLabelText('test-hours')).toBeInTheDocument();
+    expect(screen.getByLabelText('test-minutes')).toBeInTheDocument();
+    expect(screen.getByLabelText('test-seconds')).toBeInTheDocument();
+    view.rerender(<TimeInput {...defaultProps} withSeconds={false} />);
+    expect(screen.queryAllByLabelText('test-seconds')).toHaveLength(0);
   });
 
-  it('has correct displayName', () => {
-    expect(TimeInput.displayName).toEqual('@mantine/dates/TimeInput');
+  it('shows the correct value based on format prop', () => {
+    const format12 = render(<TimeInput format="12" defaultValue={new Date(0, 0, 0, 15, 1)} />);
+    const format24 = render(<TimeInput format="24" defaultValue={new Date(0, 0, 0, 15, 1)} />);
+
+    expect(format12.container.querySelectorAll('input')[0].value).toBe('03');
+    expect(format24.container.querySelectorAll('input')[0].value).toBe('15');
+  });
+
+  it('automatically moves to the next field', () => {
+    const format24 = render(<TimeInput format="24" />);
+    const inputs = format24.container.querySelectorAll('input');
+
+    userEvent.click(inputs[0]);
+    userEvent.keyboard('00');
+    expect(inputs[1]).toHaveFocus();
   });
 });

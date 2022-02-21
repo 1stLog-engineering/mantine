@@ -1,25 +1,14 @@
-import {
-  itRendersChildren,
-  itSupportsClassName,
-  itSupportsMargins,
-  itSupportsOthers,
-  itSupportsStyle,
-  itSupportsRef,
-  mockResizeObserver,
-} from '@mantine/tests';
-import { ScrollArea } from './ScrollArea';
+import { itRendersChildren, itSupportsSystemProps } from '@mantine/tests';
+import { ScrollArea, ScrollAreaProps } from './ScrollArea';
 
-mockResizeObserver();
+const defaultProps: ScrollAreaProps = {};
 
 describe('@mantine/core/ScrollArea', () => {
-  itRendersChildren(ScrollArea, {});
-  itSupportsClassName(ScrollArea, {});
-  itSupportsMargins(ScrollArea, {});
-  itSupportsOthers(ScrollArea, {});
-  itSupportsStyle(ScrollArea, {});
-  itSupportsRef(ScrollArea, {}, HTMLDivElement);
-
-  it('has correct displayName', () => {
-    expect(ScrollArea.displayName).toEqual('@mantine/core/ScrollArea');
+  itRendersChildren(ScrollArea, defaultProps);
+  itSupportsSystemProps({
+    component: ScrollArea,
+    props: defaultProps,
+    displayName: '@mantine/core/ScrollArea',
+    refType: HTMLDivElement,
   });
 });

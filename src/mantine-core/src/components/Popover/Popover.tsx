@@ -11,17 +11,17 @@ import {
   MantineNumberSize,
   MantineShadow,
   ClassNames,
-  MantineMargin,
   getDefaultZIndex,
 } from '@mantine/styles';
-import { Popper, SharedPopperProps } from '../Popper/Popper';
+import { Box } from '../Box';
+import { Popper, SharedPopperProps } from '../Popper';
 import { PopoverBody, PopoverBodyStylesNames } from './PopoverBody/PopoverBody';
 import useStyles from './Popover.styles';
 
 export type PopoverStylesNames = ClassNames<typeof useStyles> | PopoverBodyStylesNames;
 
 export interface PopoverProps
-  extends Omit<DefaultProps<PopoverStylesNames>, MantineMargin>,
+  extends DefaultProps<PopoverStylesNames>,
     SharedPopperProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'title'> {
   /** Disable closing by click outside */
@@ -71,6 +71,12 @@ export interface PopoverProps
 
   /** Whether to render the popover in a Portal */
   withinPortal?: boolean;
+
+  /** Popover body width */
+  width?: number | string;
+
+  /** Events that should trigger outside clicks */
+  clickOutsideEvents?: string[];
 }
 
 export function Popover({
@@ -103,17 +109,21 @@ export function Popover({
   id,
   classNames,
   styles,
-  sx,
+  width,
+  clickOutsideEvents = ['click', 'touchstart'],
   ...others
 }: PopoverProps) {
-  const { classes, cx } = useStyles(null, { sx, classNames, styles, name: 'Popover' });
+  const { classes, cx } = useStyles(null, { classNames, styles, name: 'Popover' });
   const handleClose = () => typeof onClose === 'function' && onClose();
   const [referenceElement, setReferenceElement] = useState(null);
   const [rootElement, setRootElement] = useState<HTMLDivElement>(null);
   const [dropdownElement, setDropdownElement] = useState<HTMLDivElement>(null);
   const focusTrapRef = useFocusTrap(!noFocusTrap && opened);
 
-  useClickOutside(() => !noClickOutside && handleClose(), null, [rootElement, dropdownElement]);
+  useClickOutside(() => !noClickOutside && handleClose(), clickOutsideEvents, [
+    rootElement,
+    dropdownElement,
+  ]);
 
   const returnFocus = useFocusReturn({
     opened: opened || noFocusTrap,
@@ -133,7 +143,7 @@ export function Popover({
   const bodyId = `${uuid}-body`;
 
   return (
-    <div className={cx(classes.root, className)} id={id} ref={setRootElement} {...others}>
+    <Box className={cx(classes.root, className)} id={id} ref={setRootElement} {...others}>
       <Popper
         referenceElement={referenceElement}
         transitionDuration={transitionDuration}
@@ -154,6 +164,7 @@ export function Popover({
           radius={radius}
           spacing={spacing}
           withCloseButton={withCloseButton}
+          title={title}
           titleId={titleId}
           bodyId={bodyId}
           closeButtonLabel={closeButtonLabel}
@@ -162,6 +173,7 @@ export function Popover({
           onKeyDownCapture={handleKeydown}
           classNames={classNames}
           styles={styles}
+          width={width}
         >
           {children}
         </PopoverBody>
@@ -170,7 +182,7 @@ export function Popover({
       <div className={classes.target} ref={setReferenceElement}>
         {target}
       </div>
-    </div>
+    </Box>
   );
 }
 

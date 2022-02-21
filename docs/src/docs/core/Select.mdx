@@ -13,7 +13,7 @@ docs: 'core/Select.mdx'
 styles: ['Select']
 ---
 
-import { SelectDemos } from '@demos/core';
+import { SelectDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -113,6 +113,12 @@ When prop is true and value is selected clear button will replace chevron in rig
 
 <Demo data={SelectDemos.clearable} />
 
+## Allow deselect items
+
+To allow items deselection set `allowDeselect`, user will also be able to deselect item if `clearable` prop is set:
+
+<Demo data={SelectDemos.deselect} />
+
 ## Creatable
 
 Set `creatable` and `getCreateLabel` props to enable creating new select item.
@@ -188,6 +194,13 @@ const data = [
 Based on this data shape you can create custom `filter` function and `itemComponent`:
 
 <Demo data={SelectDemos.itemComponent} />
+
+## Dropdown position
+
+By default, dropdown is placed below the input and when there is not enough space, it flips to be above the input.
+To change this behavior, set `dropdownPosition` prop:
+
+<Demo data={SelectDemos.flip} />
 
 ## Animations
 

@@ -50,6 +50,7 @@ export default createStyles((theme, { position, size }: DrawerStyles, getRef) =>
   const noOverlay = getRef('noOverlay');
 
   return {
+    closeButton: {},
     overlay: {},
 
     noOverlay: {
@@ -72,14 +73,6 @@ export default createStyles((theme, { position, size }: DrawerStyles, getRef) =>
       maxHeight: '100vh',
       position: 'fixed',
       outline: 0,
-    },
-
-    clickOutsideOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
     },
 
     title: {

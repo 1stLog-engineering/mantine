@@ -13,7 +13,7 @@ docs: 'core/Menu.mdx'
 styles: ['Menu']
 ---
 
-import { MenuDemos } from '@demos/core';
+import { MenuDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -85,6 +85,10 @@ You can change it by setting `control` and `controlRefProp` props.
 It defaults to `ref`, to change that set `controlRefProp="customRefProp"`.
 
 <Demo data={MenuDemos.controls} />
+
+## Custom control with component
+
+<Demo data={MenuDemos.customControl} demoProps={{ toggle: true }} />
 
 ## Change menu position
 

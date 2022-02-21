@@ -37,6 +37,8 @@ function getPositionStyles(props: AppShellStyles, theme: MantineTheme): CSSObjec
     minHeight: '100vh',
     paddingTop: `calc(${props.headerHeight} + ${padding}px)`,
     paddingLeft: `calc(${props.navbarWidth} + ${padding}px)`,
+    paddingRight: theme.fn.size({ size: padding, sizes: theme.spacing }),
+    paddingBottom: theme.fn.size({ size: padding, sizes: theme.spacing }),
     ...queries,
   };
 }
@@ -53,6 +55,7 @@ export default createStyles((theme, props: AppShellStyles) => ({
 
   main: {
     flex: 1,
+    width: '100vw',
     boxSizing: 'border-box',
     ...getPositionStyles(props, theme),
   },

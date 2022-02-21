@@ -1,11 +1,6 @@
 import React, { forwardRef } from 'react';
-import {
-  DefaultProps,
-  useExtractedMargins,
-  PolymorphicComponentProps,
-  PolymorphicRef,
-  useSx,
-} from '@mantine/styles';
+import { DefaultProps, PolymorphicComponentProps, PolymorphicRef } from '@mantine/styles';
+import { Box } from '../../../Box';
 
 interface _NavbarSectionProps extends DefaultProps {
   /** Section children */
@@ -15,35 +10,26 @@ interface _NavbarSectionProps extends DefaultProps {
   grow?: boolean;
 }
 
-export type NavbarSectionProps<C extends React.ElementType> = PolymorphicComponentProps<
-  C,
-  _NavbarSectionProps
->;
+export type NavbarSectionProps<C> = C extends React.ElementType
+  ? PolymorphicComponentProps<C, _NavbarSectionProps>
+  : never;
 
-type NavbarSectionComponent = <C extends React.ElementType = 'div'>(
-  props: NavbarSectionProps<C>
-) => React.ReactElement;
+type NavbarSectionComponent = <C = 'div'>(props: NavbarSectionProps<C>) => React.ReactElement;
 
 export const NavbarSection: NavbarSectionComponent & { displayName?: string } = forwardRef(
   <C extends React.ElementType = 'div'>(
-    { component, children, grow = false, style, className, sx, ...others }: NavbarSectionProps<C>,
+    { component, children, grow = false, sx, ...others }: NavbarSectionProps<C>,
     ref: PolymorphicRef<C>
-  ) => {
-    const Element = component || 'div';
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
-    const { css, cx, sxClassName } = useSx({ sx, className });
-
-    return (
-      <Element
-        ref={ref}
-        className={cx(css({ flex: grow ? 1 : 0, boxSizing: 'border-box' }), sxClassName)}
-        style={mergedStyles}
-        {...rest}
-      >
-        {children}
-      </Element>
-    );
-  }
+  ) => (
+    <Box<any>
+      component={component || 'div'}
+      ref={ref}
+      sx={[{ flex: grow ? 1 : 0, boxSizing: 'border-box' }, sx]}
+      {...others}
+    >
+      {children}
+    </Box>
+  )
 );
 
 NavbarSection.displayName = '@mantine/core/NavbarSection';

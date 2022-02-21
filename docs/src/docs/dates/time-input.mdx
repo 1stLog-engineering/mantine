@@ -12,7 +12,7 @@ docs: 'dates/TimeInput.mdx'
 styles: ['TimeInput']
 ---
 
-import { TimeInputDemos } from '@demos/dates';
+import { TimeInputDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -35,6 +35,10 @@ function Demo() {
 To add seconds set `withSeconds` prop:
 
 <Demo data={TimeInputDemos.withSeconds} />
+
+## 12 hours format
+
+<Demo data={TimeInputDemos.format} />
 
 ## Input props
 
@@ -67,16 +71,6 @@ function Demo() {
   const inputRef = useRef();
   return <TimeInput ref={inputRef} />;
 }
-```
-
-## Server side rendering
-
-Component uses [use-id](/hooks/use-id/) hook to generate unique ids and aria- attributes,
-provide static `id` prop to prevent props mismatch:
-
-```tsx
-<TimeInput /> // -> random id generated both on client and server, props mismatch warning
-<TimeInput id="my-time-input" /> // -> id is static, no mismatches
 ```
 
 ## Accessibility

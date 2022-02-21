@@ -15,7 +15,7 @@ import {
   CloseButton,
   MantineShadow,
   ClassNames,
-  useExtractedMargins,
+  extractMargins,
   getDefaultZIndex,
 } from '@mantine/core';
 import {
@@ -25,12 +25,12 @@ import {
   useWindowEvent,
   useUuid,
 } from '@mantine/hooks';
-import { CalendarStylesNames } from '../Calendar/Calendar';
+import { CalendarBaseStylesNames } from '../CalendarBase/CalendarBase';
 import useStyles from './DatePickerBase.styles';
 
 export type DatePickerStylesNames =
   | ClassNames<typeof useStyles>
-  | CalendarStylesNames
+  | CalendarBaseStylesNames
   | InputStylesNames
   | InputWrapperStylesNames;
 
@@ -89,6 +89,12 @@ export interface DatePickerBaseSharedProps
 
   /** Whether to render the dropdown in a Portal */
   withinPortal?: boolean;
+
+  /** Called when dropdown opens */
+  onDropdownOpen?(): void;
+
+  /** Called when dropdown closes */
+  onDropdownClose?(): void;
 }
 
 export interface DatePickerBaseProps extends DatePickerBaseSharedProps {
@@ -109,6 +115,9 @@ export interface DatePickerBaseProps extends DatePickerBaseSharedProps {
 
   /** Allow free input */
   allowFreeInput?: boolean;
+
+  /** Amount of months */
+  amountOfMonths?: number;
 }
 
 const RIGHT_SECTION_WIDTH = {
@@ -142,7 +151,7 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
       size = 'sm',
       children,
       inputLabel,
-      __staticSelector = 'date-picker',
+      __staticSelector = 'DatePickerBase',
       dropdownOpened,
       setDropdownOpened,
       dropdownType = 'popover',
@@ -158,6 +167,9 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
       onKeyDown,
       name = 'date',
       sx,
+      amountOfMonths = 1,
+      onDropdownClose,
+      onDropdownOpen,
       ...others
     }: DatePickerBaseProps,
     ref
@@ -166,7 +178,7 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
       { size, invalid: !!error },
       { classNames, styles, name: __staticSelector }
     );
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
+    const { margins, rest } = extractMargins(others);
     const [dropdownElement, setDropdownElement] = useState<HTMLDivElement>(null);
     const [rootElement, setRootElement] = useState<HTMLDivElement>(null);
     const [referenceElement, setReferenceElement] = useState<HTMLDivElement>(null);
@@ -177,6 +189,17 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
 
     const closeDropdown = () => {
       setDropdownOpened(false);
+      onDropdownClose?.();
+    };
+
+    const openDropdown = () => {
+      setDropdownOpened(true);
+      onDropdownOpen?.();
+    };
+
+    const toggleDropdown = () => {
+      setDropdownOpened(!dropdownOpened);
+      !dropdownOpened ? onDropdownOpen?.() : onDropdownClose?.();
     };
 
     const closeOnEscape = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -212,7 +235,7 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
     const handleInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
       typeof onFocus === 'function' && onFocus(event);
       if (allowFreeInput) {
-        setDropdownOpened(true);
+        openDropdown();
       }
     };
 
@@ -220,7 +243,7 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
       typeof onKeyDown === 'function' && onKeyDown(event);
       if ((event.code === 'Space' || event.code === 'Enter') && !allowFreeInput) {
         event.preventDefault();
-        setDropdownOpened(true);
+        openDropdown();
       }
     };
 
@@ -232,13 +255,14 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
         error={error}
         description={description}
         className={className}
-        style={mergedStyles}
+        style={style}
         classNames={classNames}
         styles={styles}
         size={size}
         __staticSelector={__staticSelector}
         sx={sx}
         ref={setReferenceElement}
+        {...margins}
         {...wrapperProps}
       >
         <div ref={setRootElement}>
@@ -253,9 +277,7 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
                 ),
               }}
               styles={styles}
-              onClick={() =>
-                !allowFreeInput ? setDropdownOpened(!dropdownOpened) : setDropdownOpened(true)
-              }
+              onClick={() => (!allowFreeInput ? toggleDropdown() : openDropdown())}
               onKeyDown={handleKeyDown}
               id={uuid}
               ref={useMergedRef(ref, inputRef)}
@@ -307,7 +329,12 @@ export const DatePickerBase = forwardRef<HTMLInputElement, DatePickerBaseProps>(
               </div>
             </Popper>
           ) : (
-            <Modal opened={dropdownOpened} onClose={closeDropdown} hideCloseButton>
+            <Modal
+              opened={dropdownOpened}
+              onClose={closeDropdown}
+              hideCloseButton
+              size={amountOfMonths * 400}
+            >
               {children}
             </Modal>
           )}

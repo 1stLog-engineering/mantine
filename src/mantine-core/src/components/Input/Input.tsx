@@ -5,9 +5,9 @@ import {
   MantineNumberSize,
   MantineSize,
   ClassNames,
-  useExtractedMargins,
   PolymorphicComponentProps,
   PolymorphicRef,
+  extractMargins,
 } from '@mantine/styles';
 import { Box } from '../Box';
 import useStyles, { InputVariant } from './Input.styles';
@@ -21,6 +21,9 @@ export interface InputBaseProps {
   /** Adds icon on the left side of input */
   icon?: React.ReactNode;
 
+  /** Width of icon section in px */
+  iconWidth?: number;
+
   /** Right section of input, similar to icon but on the right */
   rightSection?: React.ReactNode;
 
@@ -31,9 +34,9 @@ export interface InputBaseProps {
   rightSectionProps?: React.ComponentPropsWithoutRef<'div'>;
 
   /** Properties spread to root element */
-  wrapperProps?: React.ComponentPropsWithoutRef<'div'> & { [key: string]: any };
+  wrapperProps?: { [key: string]: any };
 
-  /** Sets aria-required=true on input element */
+  /** Sets required on input element */
   required?: boolean;
 
   /** Input border-radius from theme or number to set border-radius in px */
@@ -57,13 +60,15 @@ interface _InputProps extends InputBaseProps, DefaultProps<InputStylesNames> {
   __staticSelector?: string;
 }
 
-export type InputProps<C extends React.ElementType> = PolymorphicComponentProps<C, _InputProps>;
+export type InputProps<C> = C extends React.ElementType
+  ? PolymorphicComponentProps<C, _InputProps>
+  : never;
 
-type InputComponent = <C extends React.ElementType = 'input'>(
-  props: InputProps<C>
-) => React.ReactElement;
+type InputComponent = (<C = 'input'>(props: InputProps<C>) => React.ReactElement) & {
+  displayName?: string;
+};
 
-export const Input: InputComponent & { displayName?: string } = forwardRef(
+export const Input: InputComponent = forwardRef(
   <C extends React.ElementType = 'input'>(
     {
       component,
@@ -75,6 +80,7 @@ export const Input: InputComponent & { displayName?: string } = forwardRef(
       icon,
       style,
       rightSectionWidth = 36,
+      iconWidth,
       rightSection,
       rightSectionProps = {},
       radius = 'sm',
@@ -92,17 +98,27 @@ export const Input: InputComponent & { displayName?: string } = forwardRef(
     const theme = useMantineTheme();
     const _variant = variant || (theme.colorScheme === 'dark' ? 'filled' : 'default');
     const { classes, cx } = useStyles(
-      { radius, size, multiline, variant: _variant, invalid },
-      { sx, classNames, styles, name: __staticSelector }
+      {
+        radius,
+        size,
+        multiline,
+        variant: _variant,
+        invalid,
+        rightSectionWidth,
+        iconWidth,
+        withRightSection: !!rightSection,
+      },
+      { classNames, styles, name: __staticSelector }
     );
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
+    const { margins, rest } = extractMargins(others);
     const Element: any = component || 'input';
 
     return (
       <Box
         className={cx(classes.wrapper, className)}
-        style={mergedStyles}
         sx={sx}
+        style={style}
+        {...margins}
         {...wrapperProps}
       >
         {icon && <div className={classes.icon}>{icon}</div>}
@@ -110,23 +126,18 @@ export const Input: InputComponent & { displayName?: string } = forwardRef(
         <Element
           {...rest}
           ref={ref}
-          aria-required={required}
+          required={required}
           aria-invalid={invalid}
+          disabled={disabled}
           className={cx(classes[`${_variant}Variant`], classes.input, {
             [classes.withIcon]: icon,
             [classes.invalid]: invalid,
             [classes.disabled]: disabled,
           })}
-          disabled={disabled}
-          style={{ paddingRight: rightSection ? rightSectionWidth : theme.spacing.md }}
         />
 
         {rightSection && (
-          <div
-            {...rightSectionProps}
-            style={{ width: rightSectionWidth }}
-            className={classes.rightSection}
-          >
+          <div {...rightSectionProps} className={classes.rightSection}>
             {rightSection}
           </div>
         )}

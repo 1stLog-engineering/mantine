@@ -7,10 +7,10 @@ import {
   MantineGradient,
   MantineColor,
   ClassNames,
-  useExtractedMargins,
   PolymorphicComponentProps,
   PolymorphicRef,
 } from '@mantine/styles';
+import { Box } from '../Box';
 import useStyles, { heights, ButtonVariant } from './Button.styles';
 import { Loader, LoaderProps } from '../Loader';
 
@@ -60,24 +60,22 @@ export interface SharedButtonProps extends DefaultProps<ButtonStylesNames> {
   loaderPosition?: 'left' | 'right';
 }
 
-export type ButtonProps<C extends React.ElementType> = PolymorphicComponentProps<
-  C,
-  SharedButtonProps
->;
+export type ButtonProps<C> = C extends React.ElementType
+  ? PolymorphicComponentProps<C, SharedButtonProps>
+  : never;
 
-type ButtonComponent = <C extends React.ElementType = 'button'>(
-  props: ButtonProps<C>
-) => React.ReactElement;
+type ButtonComponent = (<C = 'button'>(props: ButtonProps<C>) => React.ReactElement) & {
+  displayName?: string;
+};
 
-export const Button: ButtonComponent & { displayName?: string } = forwardRef(
+export const Button: ButtonComponent = forwardRef(
   <C extends React.ElementType = 'button'>(
     {
       className,
-      style,
       size = 'sm',
       color,
       type = 'button',
-      disabled = false,
+      disabled,
       children,
       leftIcon,
       rightIcon,
@@ -93,9 +91,8 @@ export const Button: ButtonComponent & { displayName?: string } = forwardRef(
       gradient = { from: 'blue', to: 'cyan', deg: 45 },
       classNames,
       styles,
-      sx,
       ...others
-    }: ButtonProps<C>,
+    }: any,
     ref: PolymorphicRef<C>
   ) => {
     const { classes, cx, theme } = useStyles(
@@ -109,11 +106,9 @@ export const Button: ButtonComponent & { displayName?: string } = forwardRef(
         gradientTo: gradient.to,
         gradientDeg: gradient.deg,
       },
-      { classNames, styles, sx, name: 'Button' }
+      { classNames, styles, name: 'Button' }
     );
     const colors = getSharedColorScheme({ color, theme, variant });
-    const { mergedStyles, rest } = useExtractedMargins({ others, style });
-    const Element = component || 'button';
     const loader = (
       <Loader
         color={colors.color}
@@ -123,14 +118,14 @@ export const Button: ButtonComponent & { displayName?: string } = forwardRef(
     );
 
     return (
-      <Element
-        {...rest}
+      <Box<any>
+        component={component || 'button'}
         className={cx(classes[variant], { [classes.loading]: loading }, classes.root, className)}
         type={type}
         disabled={disabled || loading}
         ref={ref}
         onTouchStart={() => {}}
-        style={mergedStyles}
+        {...others}
       >
         <div className={classes.inner}>
           {(leftIcon || (loading && loaderPosition === 'left')) && (
@@ -152,7 +147,7 @@ export const Button: ButtonComponent & { displayName?: string } = forwardRef(
             </span>
           )}
         </div>
-      </Element>
+      </Box>
     );
   }
 );

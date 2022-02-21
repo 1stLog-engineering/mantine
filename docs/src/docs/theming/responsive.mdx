@@ -6,8 +6,13 @@ order: 3
 ---
 
 import { DEFAULT_THEME } from '@mantine/core';
-import { GridDemos, SimpleGridDemos, AppShellDemos, MediaQueryDemos } from '@demos/core';
-import { CreateStylesDemos } from '@docs/demos';
+import {
+  GridDemos,
+  SimpleGridDemos,
+  AppShellDemos,
+  MediaQueryDemos,
+  CreateStylesDemos,
+} from '@mantine/demos';
 
 # Responsive styles
 
@@ -103,7 +108,7 @@ function Demo() {
         <Header height={70} padding="md">
           {/* You can handle other responsive styles with MediaQuery component or createStyles function */}
           <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-            <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
+            <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
               <Burger
                 opened={opened}
                 onClick={() => setOpened((o) => !o)}
@@ -145,11 +150,11 @@ to render different components based on media query:
 
 ```tsx
 <>
-  <MediaQuery largerThan="sm">
+  <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
     <TextInput size="xl" />
   </MediaQuery>
 
-  <MediaQuery smallerThan="sm">
+  <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
     <TextInput size="md" />
   </MediaQuery>
 </>

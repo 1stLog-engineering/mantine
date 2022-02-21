@@ -13,7 +13,7 @@ docs: 'core/Table.mdx'
 styles: ['Table', 'single-node']
 ---
 
-import { TableDemos } from '@demos/core';
+import { TableDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -30,6 +30,12 @@ const elements = [
 ```
 
 <Demo data={TableDemos.usage} />
+
+## Spacing
+
+To control spacing use `horizontalSpacing` and `verticalSpacing` props. Both props support spacing from `theme.spacing` and number values to set cell padding in px:
+
+<Demo data={TableDemos.spacingConfigurator} />
 
 ## Caption and tfoot
 

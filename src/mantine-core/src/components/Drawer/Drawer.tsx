@@ -8,18 +8,16 @@ import {
   MantineMargin,
   getDefaultZIndex,
 } from '@mantine/styles';
-import { Paper } from '../Paper/Paper';
-import { Overlay } from '../Overlay/Overlay';
-import { Portal } from '../Portal/Portal';
-import { Text } from '../Text/Text';
-import { CloseButton } from '../ActionIcon/CloseButton/CloseButton';
+import { Paper } from '../Paper';
+import { Overlay } from '../Overlay';
+import { Portal } from '../Portal';
+import { Text } from '../Text';
+import { Box } from '../Box';
+import { CloseButton } from '../ActionIcon';
 import { GroupedTransition, MantineTransition } from '../Transition';
 import useStyles, { DrawerPosition } from './Drawer.styles';
 
-export type DrawerStylesNames = Exclude<
-  ClassNames<typeof useStyles>,
-  'noOverlay' | 'clickOutsideOverlay'
->;
+export type DrawerStylesNames = Exclude<ClassNames<typeof useStyles>, 'noOverlay'>;
 
 export interface DrawerProps
   extends Omit<DefaultProps<DrawerStylesNames>, MantineMargin>,
@@ -83,6 +81,9 @@ export interface DrawerProps
 
   /** Close button aria-label */
   closeButtonLabel?: string;
+
+  /** Target element or selector where drawer portal should be rendered */
+  target?: HTMLElement | string;
 }
 
 const transitions: Record<DrawerPosition, MantineTransition> = {
@@ -92,9 +93,15 @@ const transitions: Record<DrawerPosition, MantineTransition> = {
   right: 'slide-left',
 };
 
+const rtlTransitions: Record<DrawerPosition, MantineTransition> = {
+  top: 'slide-down',
+  bottom: 'slide-up',
+  right: 'slide-right',
+  left: 'slide-left',
+};
+
 export function MantineDrawer({
   className,
-  style,
   opened,
   onClose,
   position = 'left',
@@ -118,18 +125,19 @@ export function MantineDrawer({
   closeButtonLabel,
   classNames,
   styles,
-  sx,
+  target,
   ...others
 }: DrawerProps) {
   const { classes, cx, theme } = useStyles(
     { size, position },
-    { sx, classNames, styles, name: 'Drawer' }
+    { classNames, styles, name: 'Drawer' }
   );
   const focusTrapRef = useFocusTrap(!noFocusTrap && opened);
 
   const [, lockScroll] = useScrollLock();
 
-  const drawerTransition = transition || transitions[position];
+  const drawerTransition =
+    transition || (theme.dir === 'rtl' ? rtlTransitions : transitions)[position];
   const _overlayOpacity =
     typeof overlayOpacity === 'number'
       ? overlayOpacity
@@ -169,23 +177,15 @@ export function MantineDrawer({
       }}
     >
       {(transitionStyles) => (
-        <div
+        <Box
           className={cx(classes.root, { [classes.noOverlay]: noOverlay }, className)}
           role="dialog"
           aria-modal
-          style={style}
+          onMouseDown={() => !noCloseOnClickOutside && onClose()}
           {...others}
         >
-          {!noCloseOnClickOutside && (
-            // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
-            <div
-              onClick={onClose}
-              className={classes.clickOutsideOverlay}
-              style={{ zIndex: zIndex + 1 }}
-            />
-          )}
-
           <Paper<'div'>
+            onMouseDown={(event) => event.stopPropagation()}
             className={cx(classes.drawer, className)}
             ref={focusTrapRef}
             style={{ ...transitionStyles.drawer, zIndex: zIndex + 2 }}
@@ -205,7 +205,12 @@ export function MantineDrawer({
                 <Text className={classes.title}>{title}</Text>
 
                 {!hideCloseButton && (
-                  <CloseButton iconSize={16} onClick={onClose} aria-label={closeButtonLabel} />
+                  <CloseButton
+                    iconSize={16}
+                    onClick={onClose}
+                    aria-label={closeButtonLabel}
+                    className={classes.closeButton}
+                  />
                 )}
               </div>
             )}
@@ -225,7 +230,7 @@ export function MantineDrawer({
               />
             </div>
           )}
-        </div>
+        </Box>
       )}
     </GroupedTransition>
   );
@@ -233,10 +238,11 @@ export function MantineDrawer({
 
 export function Drawer({
   zIndex = getDefaultZIndex('modal'),
+  target,
   ...props
 }: React.ComponentPropsWithoutRef<typeof MantineDrawer>) {
   return (
-    <Portal zIndex={zIndex}>
+    <Portal zIndex={zIndex} target={target}>
       <MantineDrawer {...props} />
     </Portal>
   );

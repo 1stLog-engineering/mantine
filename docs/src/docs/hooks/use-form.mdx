@@ -11,12 +11,7 @@ docs: 'hooks/use-form.mdx'
 source: 'mantine-hooks/src/use-form/use-form.ts'
 ---
 
-import {
-  UseFormAuthDemo,
-  UseFormBaseDemo,
-  UseFormBlurValidateDemo,
-  UseFormServerValidationDemo,
-} from '@docs/demos';
+import { HooksDemos } from '@mantine/demos';
 
 ## Usage
 
@@ -24,7 +19,7 @@ use-form provides bare minimum api to manage simple forms.
 It includes handlers to set and validate values.
 Hook does not depend on `@mantine/core` inputs and does not work with dom.
 
-<UseFormBaseDemo />
+<HooksDemos.UseFormBaseDemo />
 
 ## API
 
@@ -208,7 +203,7 @@ form.values; // -> { name: 'Bob', age: 35 }
 
 ### form.validate
 
-`validate` function runs all validation rules on corresponding `value's` key:
+`validate` function runs all validation rules on corresponding `value's` key, it returns `true` if all fields are valid:
 
 ```tsx
 const form = useForm({
@@ -220,11 +215,11 @@ const form = useForm({
 
 form.errors; // -> { name: null, age: null }
 
-form.validate();
+form.validate(); // -> false
 form.errors; // -> { name: true, age: null }
 
 form.setFieldValue('name', 'Bob');
-form.validate();
+form.validate(); // -> true
 form.errors; // -> { name: null, age: null }
 ```
 
@@ -346,19 +341,19 @@ const authForm = <form onSubmit={form.onSubmit((values) => console.log(values))}
 
 ### Validate field on blur
 
-<UseFormBlurValidateDemo />
+<HooksDemos.UseFormBlurValidateDemo />
 
 ### External field validation
 
 Submit form with `test@mantine.dev` email to see external validation error:
 
-<UseFormServerValidationDemo />
+<HooksDemos.UseFormServerValidationDemo />
 
 ### Authentication form
 
-[Browse code on Github](https://github.com/mantinedev/mantine/blob/master/src/mantine-demos/src/AuthenticationForm/AuthenticationForm.tsx)
+[Browse code on GitHub](https://github.com/mantinedev/mantine/blob/master/src/mantine-demos/src/shared/AuthenticationForm/AuthenticationForm.tsx)
 
-<UseFormAuthDemo />
+<HooksDemos.UseFormAuthDemo />
 
 ## TypeScript
 
