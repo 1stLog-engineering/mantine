@@ -71,8 +71,8 @@ storiesOf('@mantine/core/TagInput/stories', module)
       <TagInput label="Submit with enter" defaultValue={['react', 'ng']} placeholder="Input tag" />
     </SubmitForm>
   ));
-  // .add('RTL', () => (
-  //   <RtlProvider>
-  //     <TagInput label="Tag Input" defaultValue={['react', 'ng']} placeholder="Input tag" />
-  //   </RtlProvider>
-  // ));
+// .add('RTL', () => (
+//   <RtlProvider>
+//     <TagInput label="Tag Input" defaultValue={['react', 'ng']} placeholder="Input tag" />
+//   </RtlProvider>
+// ));

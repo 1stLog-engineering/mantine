@@ -8,13 +8,7 @@ const styles = generateBorderStyles(TagInputStylesApi);
 const useStyles = createStyles(() => styles);
 
 function Wrapper(props: Partial<TagInputProps>) {
-  return (
-    <InputStylesApiWrapper
-      component={TagInput}
-      value={['React', 'Angular']}
-      {...props}
-    />
-  );
+  return <InputStylesApiWrapper component={TagInput} value={['React', 'Angular']} {...props} />;
 }
 
 function WithClassNames() {

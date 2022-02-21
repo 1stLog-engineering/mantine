@@ -19,7 +19,7 @@ function Demo() {
         placeholder="Add react related packages"
         defaultValue={['react', 'react-router']}
         validationRegex={/react.*/}
-        onValidationReject={() => { }}
+        onValidationReject={() => {}}
       />
     </div>
   );

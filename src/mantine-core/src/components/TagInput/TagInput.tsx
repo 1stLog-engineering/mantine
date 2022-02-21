@@ -8,14 +8,14 @@ import { InputStylesNames } from '../Input/Input';
 import { InputWrapperStylesNames } from '../InputWrapper/InputWrapper';
 import useStyles, { RIGHT_SECTION_WIDTH } from './TagInput.styles';
 import { DefaultValue, DefaultValueStylesNames } from './DefaultValue/DefaultValue';
-import { RightSection as RightSectionComponent } from './RightSection/RightSection';
+import { CloseButton } from '../ActionIcon';
 
 export type TagInputStylesNames =
   | DefaultValueStylesNames
   | Exclude<
-    ClassNames<typeof useStyles>,
-    'tagInputEmpty' | 'tagInputInputHidden' | 'tagInputPointer'
-  >
+      ClassNames<typeof useStyles>,
+      'tagInputEmpty' | 'tagInputInputHidden' | 'tagInputPointer'
+    >
   | InputStylesNames
   | InputWrapperStylesNames;
 export interface TagInputProps extends DefaultProps<TagInputStylesNames>, BaseSelectProps {
@@ -56,7 +56,7 @@ export interface TagInputProps extends DefaultProps<TagInputStylesNames>, BaseSe
   maxTags?: number;
 
   /** Component used to render right section */
-  rightSection?: React.FC<any>;
+  rightSection?: React.ReactNode;
 
   /** Called to split after onPaste  */
   pasteSplit?: (data: any) => string[];
@@ -79,7 +79,7 @@ const defaultPasteSplit = (data: string): string[] => {
   return data.split(new RegExp(separators.join('|'))).map((d) => d.trim());
 };
 
-const getClipboardData = (e: ClipboardEvent): string => {
+const getClipboardData = (e: React.ClipboardEvent): string => {
   if (e.clipboardData) {
     return e.clipboardData.getData('text/plain');
   }
@@ -114,7 +114,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       wrapperProps,
       value,
       defaultValue,
-      onChange = () => { },
+      onChange = () => {},
       valueComponent: Value = DefaultValue,
       id,
       onFocus,
@@ -128,7 +128,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       disabled = false,
       radius = 'sm',
       icon,
-      rightSection: RightSection = RightSectionComponent,
+      rightSection,
       rightSectionWidth,
       sx,
       maxTags,
@@ -136,7 +136,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       addOnPaste = true,
       pasteSplit = defaultPasteSplit,
       validationRegex = /.*/,
-      onValidationReject = () => { },
+      onValidationReject = () => {},
       onlyUnique = false,
       ...others
     }: TagInputProps,
@@ -146,7 +146,8 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       { size, invalid: !!error },
       { classNames, styles, name: 'TagInput' }
     );
-    const { margins, rest } = extractMargins({ others });
+    const { margins, rest } = extractMargins(others);
+
     const inputRef = useRef<HTMLInputElement>();
     const wrapperRef = useRef<HTMLDivElement>();
     const uuid = useUuid(id);
@@ -185,7 +186,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       clearInputOnBlur && setInputValue('');
     };
 
-    const handleAddTags = (newTags) => {
+    const handleAddTags = (newTags: string[]): boolean => {
       let tags = newTags;
       if (onlyUnique) {
         tags = uniq(tags);
@@ -271,14 +272,14 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
         />
       ));
 
-    const handleClear = () => {
+    const handleClear = (): void => {
       setInputValue('');
       setValue([]);
       inputRef.current?.focus();
       valuesOverflow.current = false;
     };
 
-    const handlePaste = (e) => {
+    const handlePaste = (e: React.ClipboardEvent): void => {
       if (!addOnPaste) {
         return;
       }
@@ -336,16 +337,20 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             }}
             rightSectionWidth={theme.fn.size({ size, sizes: RIGHT_SECTION_WIDTH }) as number}
             rightSection={
-              <RightSection
-                shouldClear={!disabled && clearable && _value.length > 0}
-                clearButtonLabel={clearButtonLabel}
-                onClear={handleClear}
-                size={size}
-              />
+              !disabled && clearable && _value.length > 0 ? (
+                <CloseButton
+                  variant="transparent"
+                  aria-label={clearButtonLabel}
+                  onClick={handleClear}
+                  size={size}
+                />
+              ) : (
+                rightSection
+              )
             }
             onPaste={handlePaste}
           >
-            <div className={classes.values}>
+            <div className={classes.values} id={`${uuid}-items`}>
               {selectedItems}
 
               <input
