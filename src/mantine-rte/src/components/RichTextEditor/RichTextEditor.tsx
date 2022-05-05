@@ -76,6 +76,12 @@ export interface RichTextEditorProps
 
   /** Extra modules for react-quill */
   modules?: Record<string, any>;
+
+  /** Custom Icon for toolbar to render */
+  customToolbarIcons?: Record<string, {
+    icon: any,
+    controls: string,
+  }>
 }
 
 const defaultProps: Partial<RichTextEditorProps> = {
@@ -106,6 +112,7 @@ export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
       mentions,
       readOnly,
       modules: externalModules,
+      customToolbarIcons,
       ...others
     } = useMantineDefaultProps('RichTextEditor', defaultProps, props);
 
@@ -123,14 +130,25 @@ export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
     );
 
     const modules = useMemo(
-      () => ({
-        ...externalModules,
-        ...(uuid ? { toolbar: { container: `#${uuid}` } } : undefined),
-        mention: mentions,
-        imageUploader: {
-          upload: (file: File) => onImageUpload(file),
-        },
-      }),
+      () => {
+        let mergedToolbar = {};
+
+        if (uuid) {
+          mergedToolbar = { container: `#${uuid}` };
+        }
+
+        if (externalModules && externalModules.toolbar) {
+          mergedToolbar = { ...mergedToolbar, ...externalModules.toolbar };
+        }
+
+        return {
+          ...(mergedToolbar ? { toolbar: mergedToolbar } : undefined),
+          mention: mentions,
+          imageUploader: {
+            upload: (file: File) => onImageUpload(file),
+          },
+      };
+},
       [uuid, mentions, externalModules]
     );
 
@@ -151,6 +169,7 @@ export const RichTextEditor = forwardRef<Editor, RichTextEditorProps>(
           styles={styles}
           id={uuid}
           className={classes.toolbar}
+          customToolbarIcons={customToolbarIcons}
         />
 
         <Editor

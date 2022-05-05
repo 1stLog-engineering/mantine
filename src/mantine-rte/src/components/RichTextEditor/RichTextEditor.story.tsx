@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { RichTextEditor } from './RichTextEditor';
 
 export default { title: 'RichTextEditor' };
@@ -60,6 +60,48 @@ export function Placeholder() {
         onImageUpload={handleImageUpload}
         stickyOffset={0}
       />
+    </div>
+  );
+}
+
+export function CustomToolbar() {
+  const [value, onChange] = useState('');
+  const editorRef = useRef();
+  const customHandlers = ():void => {
+    console.log('customControl was clicked', editorRef);
+};
+  const modules = useMemo(
+    () => ({
+      toolbar: {
+        handlers: {
+          customControl: customHandlers,
+        },
+      },
+    }),
+    [],
+  );
+  return (
+    <div style={{ padding: 40, maxWidth: 800, margin: 'auto' }}>
+     <RichTextEditor
+       ref={editorRef}
+       placeholder="This is placeholder"
+       controls={[
+          ['bold', 'italic', 'link', 'blockquote', 'customControl'],
+        ] as any}
+       modules={modules}
+       value={value}
+       onChange={onChange}
+       onImageUpload={handleImageUpload}
+       stickyOffset={0}
+       customToolbarIcons={
+          {
+            customControl: {
+              icon: () => <div>Cs</div>,
+              controls: 'customControl',
+            },
+          }
+        }
+     />
     </div>
   );
 }

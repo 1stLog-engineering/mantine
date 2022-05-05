@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { DefaultProps, Selectors } from '@mantine/core';
 import type { RichTextEditorLabels } from '../RichTextEditor/default-labels';
 import { ToolbarButton } from './ToolbarButton/ToolbarButton';
@@ -22,6 +22,12 @@ export interface ToolbarProps extends DefaultProps<ToolbarStylesNames> {
 
   /** Id that is used to connect toolbar to editor */
   id?: string;
+
+  /** Custom Icon for toolbar to render */
+  customToolbarIcons: Record<string, {
+    icon: any,
+    controls: string,
+  }>
 }
 
 export function Toolbar({
@@ -33,6 +39,7 @@ export function Toolbar({
   classNames,
   styles,
   id,
+  customToolbarIcons,
   ...others
 }: ToolbarProps) {
   const { classes, cx } = useStyles(
@@ -40,20 +47,22 @@ export function Toolbar({
     { classNames, styles, name: 'RichTextEditor' }
   );
 
+  const mergedControls = useMemo(() => ({ ...CONTROLS, ...customToolbarIcons }), []);
+
   const groups = controls.map((group, index) => {
     const items = group
-      .filter((item) => CONTROLS[item])
+      .filter((item) => mergedControls[item])
       .map((item) => {
-        const Icon = CONTROLS[item].icon;
+        const Icon = mergedControls[item].icon;
 
         return (
           <ToolbarButton
             className={classes.toolbarControl}
-            controls={CONTROLS[item].controls}
-            value={(CONTROLS[item] as any).value}
+            controls={mergedControls[item].controls}
+            value={(mergedControls[item] as any).value}
             key={item}
             title={labels[item]}
-            noActive={(CONTROLS[item] as any).noActive}
+            noActive={(mergedControls[item] as any).noActive}
           >
             <Icon style={{ width: 18, height: 18 }} />
           </ToolbarButton>
