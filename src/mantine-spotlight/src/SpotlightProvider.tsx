@@ -6,6 +6,7 @@ import { Spotlight, InnerSpotlightProps } from './Spotlight/Spotlight';
 import { useSpotlightEvents } from './events';
 import type { SpotlightAction } from './types';
 import { SpotlightContext } from './Spotlight.context';
+import { SpotlightPerformance } from './Spotlight/SpotlightPerformance';
 
 export interface SpotlightProviderProps extends InnerSpotlightProps {
   /** Actions list */
@@ -28,6 +29,9 @@ export interface SpotlightProviderProps extends InnerSpotlightProps {
 
   /** Should search be cleared when spotlight closes */
   cleanQueryOnClose?: boolean;
+
+  /** enable performance boost */
+  usePerfomance?: boolean;
 }
 
 export function SpotlightProvider({
@@ -39,6 +43,7 @@ export function SpotlightProvider({
   onQueryChange,
   cleanQueryOnClose = true,
   transitionDuration = 150,
+  usePerfomance,
   ...others
 }: SpotlightProviderProps) {
   const timeoutRef = useRef<number>(-1);
@@ -87,15 +92,29 @@ export function SpotlightProvider({
 
   return (
     <SpotlightContext.Provider value={ctx}>
-      <Spotlight
-        actions={actions}
-        onClose={close}
-        opened={opened}
-        query={query}
-        onQueryChange={handleQueryChange}
-        transitionDuration={transitionDuration}
-        {...others}
-      />
+      {usePerfomance && (
+        <SpotlightPerformance
+          actions={actions}
+          onClose={close}
+          opened={opened}
+          query={query}
+          onQueryChange={handleQueryChange}
+          transitionDuration={transitionDuration}
+          {...others}
+        />
+      )}
+      {!usePerfomance && (
+        <Spotlight
+          actions={actions}
+          onClose={close}
+          opened={opened}
+          query={query}
+          onQueryChange={handleQueryChange}
+          transitionDuration={transitionDuration}
+          {...others}
+        />
+      )}
+
       {children}
     </SpotlightContext.Provider>
   );

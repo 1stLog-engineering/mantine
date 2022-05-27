@@ -1,107 +1,21 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   OptionalPortal,
   GroupedTransition,
-  MantineTransition,
   Overlay,
   Paper,
-  DefaultProps,
-  Selectors,
-  MantineShadow,
   TextInput,
   getDefaultZIndex,
   getGroupedOptions,
-  MantineNumberSize,
-  MantineColor,
 } from '@mantine/core';
 import { useScrollLock, useFocusTrap, useDidUpdate, useFocusReturn } from '@mantine/hooks';
-import { DefaultAction, DefaultActionProps } from '../DefaultAction/DefaultAction';
-import { ActionsList, ActionsListStylesNames } from '../ActionsList/ActionsList';
-import type { SpotlightAction } from '../types';
+import { DefaultAction } from '../DefaultAction/DefaultAction';
+import { ActionsList } from '../ActionsList/ActionsList';
 import { filterActions } from './filter-actions/filter-actions';
 import useStyles from './Spotlight.styles';
+import { SpotlightProps } from './Spotlight';
 
-export type SpotlightStylesNames = Selectors<typeof useStyles> | ActionsListStylesNames;
-
-export interface InnerSpotlightProps
-  extends DefaultProps<SpotlightStylesNames>,
-    React.ComponentPropsWithoutRef<'div'> {
-  /** Should spotlight be rendered within Portal */
-  withinPortal?: boolean;
-
-  /** Premade transition or transition object */
-  transition?: MantineTransition;
-
-  /** Transition duration in ms, set to 0 to disable all transitions */
-  transitionDuration?: number;
-
-  /** Backdrop overlay color, e.g. #000 */
-  overlayColor?: string;
-
-  /** Backdrop overlay opacity (0-1), e.g. 0.65 */
-  overlayOpacity?: number;
-
-  /** Backdrop overlay blur in px */
-  overlayBlur?: number;
-
-  /** Value from theme.shadows or any valid css box-shadow value */
-  shadow?: MantineShadow;
-
-  /** Radius from theme.radius, or number to set border-radius in px, defaults to theme.defaultRadius */
-  radius?: MantineNumberSize;
-
-  /** Should spotlight be rendered in the center of the screen */
-  centered?: boolean;
-
-  /** Max spotlight width */
-  maxWidth?: number;
-
-  /** Top offset when spotlight is not centered */
-  topOffset?: number;
-
-  /** Search input placeholder */
-  searchPlaceholder?: string;
-
-  /** Search input icon */
-  searchIcon?: React.ReactNode;
-
-  /** Function used to determine how actions will be filtered based on user input */
-  filter?(query: string, actions: SpotlightAction[]): SpotlightAction[];
-
-  /** Message displayed when actions were not found */
-  nothingFoundMessage?: React.ReactNode;
-
-  /** Number of actions displayed at a time */
-  limit?: number;
-
-  /** Should spotlight be closed when action is triggered */
-  closeOnActionTrigger?: boolean;
-
-  /** Component that is used to render actions */
-  actionComponent?: React.FC<DefaultActionProps>;
-
-  /** Component that is used to wrap actions list */
-  actionsWrapperComponent?: React.FC<{ children: React.ReactNode }> | string;
-
-  /** Spotlight z-index */
-  zIndex?: number;
-
-  /** Should user query be highlighted in actions title */
-  highlightQuery?: boolean;
-
-  /** The highlight color */
-  highlightColor?: MantineColor;
-}
-
-export interface SpotlightProps extends InnerSpotlightProps {
-  actions: SpotlightAction[];
-  onClose(): void;
-  opened: boolean;
-  query: string;
-  onQueryChange(query: string): void;
-}
-
-export function Spotlight({
+export function SpotlightPerformance({
   query,
   onQueryChange,
   actions,
@@ -151,11 +65,17 @@ export function Spotlight({
 
   useFocusReturn({ transitionDuration: 0, opened });
 
-  const filteredActions = filter(query, actions).slice(0, limit);
-  const groupedWithLabels = getGroupedOptions(filteredActions).items;
-  const groupedActions = groupedWithLabels
-    .map((item) => (item.type === 'item' ? item.item : undefined))
-    .filter((item) => item);
+  const filteredActions = useMemo(
+    () => filter(query, actions).slice(0, limit),
+    [query, actions, limit]
+  );
+  const groupedWithLabels = useMemo(
+    () => getGroupedOptions(filteredActions).items,
+    [filteredActions]
+  );
+  const groupedActions = useMemo(() => groupedWithLabels
+      .map((item) => (item.type === 'item' ? item.item : undefined))
+      .filter((item) => item), [groupedWithLabels]);
 
   useDidUpdate(() => {
     if (groupedActions.length - 1 < hovered) {
@@ -213,11 +133,11 @@ export function Spotlight({
             transition,
             timingFunction: 'ease',
           },
-          overlay: {
-            duration: transitionDuration / 2,
-            transition: 'fade',
-            timingFunction: 'ease',
-          },
+          // overlay: {
+          //   duration: transitionDuration / 2,
+          //   transition: 'fade',
+          //   timingFunction: 'ease',
+          // },
         }}
       >
         {(transitionStyles) => (
@@ -279,4 +199,4 @@ export function Spotlight({
   );
 }
 
-Spotlight.displayName = '@mantine/spotlight/Spotlight';
+SpotlightPerformance.displayName = '@mantine/spotlight/SpotlightPerformance';

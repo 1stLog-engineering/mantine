@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { Button, Box } from '@mantine/core';
 import { Search } from 'tabler-icons-react';
@@ -37,6 +37,13 @@ function RegisterInEffect() {
     ]);
   }, []);
 
+  const [, setChangeMe] = useState(false);
+
+  useEffect(() => {
+    // Fire a re-render
+    setTimeout(() => setChangeMe(true), 1000);
+  }, []);
+
   return (
     <Box sx={{ padding: 40 }}>
       <Button onClick={openSpotlight}>Open spotlight</Button>
@@ -55,6 +62,35 @@ function RegisterInEffect() {
 
 function Control() {
   const spotlight = useSpotlight();
+
+  useEffect(() => {
+    console.log('register');
+    if (spotlight) {
+      console.log('ready', spotlight);
+      spotlight.registerActions([
+        {
+          id: 'act1',
+          title: 'Show me',
+          onTrigger: () => {},
+        },
+      ]);
+    }
+
+    return () => {
+      console.log('remove');
+      spotlight.removeActions(['act1']);
+    };
+    // Try to correctly pass spotlight as dependency here
+    // This is not possible, becuase of infinite re-call of the effect.
+    // Same if only passed `registerActions` and `removeActions`
+  }, []);
+
+  useEffect(() => {
+    if (spotlight.actions) {
+      console.log(spotlight.actions);
+    }
+  }, [spotlight.actions]);
+
   return (
     <Box sx={{ padding: 40 }}>
       <Button onClick={() => spotlight.openSpotlight()}>Open spotlight</Button>
@@ -210,6 +246,39 @@ storiesOf('Spotlight', module)
   ))
   .add('Register in useEffect', () => (
     <Wrapper {...defaultProps}>
+      <RegisterInEffect />
+    </Wrapper>
+  ))
+  .add('Register in useEffect with custom', () => (
+    <Wrapper
+      {...defaultProps}
+      actions={[
+        { title: 'Create 1', group: 'Create', onTrigger: () => console.log('Crate') },
+        { title: 'Search 1', group: 'Search', onTrigger: () => console.log('Search') },
+        { title: 'No group', onTrigger: () => console.log('No Group') },
+        { title: 'Create 2', group: 'Create', onTrigger: () => console.log('Crate') },
+        { title: 'Search 2', group: 'Search', onTrigger: () => console.log('Search') },
+        { title: 'Search 3', group: 'Search', onTrigger: () => console.log('Search') },
+        { title: 'Create 3', group: 'Create', onTrigger: () => console.log('Crate') },
+      ]}
+    >
+      <RegisterInEffect />
+    </Wrapper>
+  ))
+  .add('Register in useEffect with custom perfomance', () => (
+    <Wrapper
+      {...defaultProps}
+      actions={[
+        { title: 'Create 1', group: 'Create', onTrigger: () => console.log('Crate') },
+        { title: 'Search 1', group: 'Search', onTrigger: () => console.log('Search') },
+        { title: 'No group', onTrigger: () => console.log('No Group') },
+        { title: 'Create 2', group: 'Create', onTrigger: () => console.log('Crate') },
+        { title: 'Search 2', group: 'Search', onTrigger: () => console.log('Search') },
+        { title: 'Search 3', group: 'Search', onTrigger: () => console.log('Search') },
+        { title: 'Create 3', group: 'Create', onTrigger: () => console.log('Crate') },
+      ]}
+      usePerfomance
+    >
       <RegisterInEffect />
     </Wrapper>
   ));
