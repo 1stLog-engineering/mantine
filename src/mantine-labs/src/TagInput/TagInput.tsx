@@ -76,6 +76,9 @@ export interface TagInputProps extends DefaultProps<TagInputStylesNames>, BaseSe
 
   /** Allow to only unique */
   onlyUnique?: boolean;
+
+  /** Input Tag position */
+  inputFieldPosition?: 'inside' | 'top' | 'bottom';
 }
 
 const defaultPasteSplit = (data: string): string[] => {
@@ -142,6 +145,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       validationRegex = /.*/,
       onValidationReject = () => {},
       onlyUnique = false,
+      inputFieldPosition = 'inside',
       ...others
     }: TagInputProps,
     ref
@@ -322,6 +326,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
           tabIndex={-1}
           ref={wrapperRef}
         >
+          {inputFieldPosition === 'top' && <div className={classes.values}>{selectedItems}</div>}
           <Input<'div'>
             __staticSelector="TagInput"
             style={{ overflow: 'hidden' }}
@@ -358,8 +363,9 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             onPaste={handlePaste}
           >
             <div className={classes.values} id={`${uuid}-items`}>
-              {selectedItems}
-
+              {inputFieldPosition === 'inside' && (
+                <div className={classes.values}>{selectedItems}</div>
+              )}
               <input
                 ref={useMergedRef(ref, inputRef)}
                 type="text"
@@ -382,6 +388,7 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
               />
             </div>
           </Input>
+          {inputFieldPosition === 'bottom' && <div className={classes.values}>{selectedItems}</div>}
         </div>
 
         {name && <input type="hidden" name={name} value={_value.join(',')} />}
