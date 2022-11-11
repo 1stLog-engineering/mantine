@@ -11,7 +11,7 @@ import {
   extractSystemStyles,
   BaseSelectProps,
 } from '@mantine/core';
-import useStyles, { RIGHT_SECTION_WIDTH } from './TagInput.styles';
+import useStyles, { InputFieldPosition, RIGHT_SECTION_WIDTH } from './TagInput.styles';
 import { DefaultValue, DefaultValueStylesNames } from './DefaultValue/DefaultValue';
 
 export type TagInputStylesNames =
@@ -78,7 +78,10 @@ export interface TagInputProps extends DefaultProps<TagInputStylesNames>, BaseSe
   onlyUnique?: boolean;
 
   /** Input Tag position */
-  inputFieldPosition?: 'inside' | 'top' | 'bottom';
+  inputFieldPosition?: InputFieldPosition;
+
+  /** Max Height Container while position top | bottom */
+  maxHeight?: number;
 }
 
 const defaultPasteSplit = (data: string): string[] => {
@@ -146,12 +149,13 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       onValidationReject = () => {},
       onlyUnique = false,
       inputFieldPosition = 'inside',
+      maxHeight = 60,
       ...others
     }: TagInputProps,
     ref
   ) => {
     const { classes, cx, theme } = useStyles(
-      { size, invalid: !!error },
+      { size, invalid: !!error, inputFieldPosition, maxHeight },
       { classNames, styles, name: 'TagInput' }
     );
     const { systemStyles, rest } = extractSystemStyles(others);
@@ -326,7 +330,9 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
           tabIndex={-1}
           ref={wrapperRef}
         >
-          {inputFieldPosition === 'top' && <div className={classes.values}>{selectedItems}</div>}
+          {inputFieldPosition === 'top' && (
+            <div className={cx(classes.values, classes.valuesNotInline)}>{selectedItems}</div>
+          )}
           <Input<'div'>
             __staticSelector="TagInput"
             style={{ overflow: 'hidden' }}
@@ -388,7 +394,9 @@ export const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
               />
             </div>
           </Input>
-          {inputFieldPosition === 'bottom' && <div className={classes.values}>{selectedItems}</div>}
+          {inputFieldPosition === 'bottom' && (
+            <div className={cx(classes.values, classes.valuesNotInline)}>{selectedItems}</div>
+          )}
         </div>
 
         {name && <input type="hidden" name={name} value={_value.join(',')} />}
