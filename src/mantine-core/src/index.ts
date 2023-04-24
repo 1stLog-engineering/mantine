@@ -95,3 +95,5 @@ export * from './TransferList';
 export * from './Transition';
 export * from './TypographyStylesProvider';
 export * from './UnstyledButton';
+
+export * from './TagInput';

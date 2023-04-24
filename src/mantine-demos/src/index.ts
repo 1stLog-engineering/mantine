@@ -91,6 +91,7 @@ export * as SpoilerDemos from './demos/core/Spoiler';
 export * as StepperDemos from './demos/core/Stepper';
 export * as SwitchDemos from './demos/core/Switch';
 export * as TableDemos from './demos/core/Table';
+export * as TagInputDemos from './demos/core/TagInput';
 export * as TabsDemos from './demos/core/Tabs';
 export * as TextDemos from './demos/core/Text';
 export * as TextareaDemos from './demos/core/Textarea';
